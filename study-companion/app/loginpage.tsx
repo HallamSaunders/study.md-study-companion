@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, useColorScheme, View, Text } from 'react-native';
+import { StyleSheet, TextInput, useColorScheme, View, Text, Pressable } from 'react-native';
 import { useState } from 'react';
 import { Link } from 'expo-router';
 
@@ -60,10 +60,26 @@ export default function Notes() {
                     marginBottom: 12,
                     color: themeColors.text
                 }}></TextInput>
+            <Pressable onPress={signIn}
+                style={{
+                    width: '40%',
+                    height: 40,
+                    borderRadius: 8,
+                    paddingHorizontal: 10,
+                    backgroundColor: themeColors.tint,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{
+                        fontSize: 14,
+                        color: themeColors.text,
+                    }}>Log in</Text>        
+            </Pressable>
             <Link href="createaccountpage" style={styles.link}>
                 <Text style={{
                     fontSize: 14,
-                    color: themeColors.text
+                    color: themeColors.text,
+                    marginBottom: 40
                 }}>Don't have an account yet? Click here to sign up!</Text>
             </Link>
         </View>
