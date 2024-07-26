@@ -64,20 +64,18 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      { user ? (
-        <Stack>
+      <Stack>
+        { user ? (
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="profilesettings"
-            options={{
-              presentation: 'modal',
-              headerShown: false
-            }} />
-        </Stack>
-      ) : (
-        <Stack>
+        ) : (
           <Stack.Screen name='loginpage' options={{ headerShown: false }}/>
-        </Stack>
-      )}
+        )}
+        <Stack.Screen name="profilesettings"
+          options={{
+            presentation: 'modal',
+            headerShown: false
+          }}/>
+      </Stack>
     </ThemeProvider>
   );
 }
