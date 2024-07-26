@@ -25,7 +25,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
         tabBarShowLabel: false,
       }}>
       <Tabs.Screen
@@ -47,27 +46,12 @@ export default function TabLayout() {
         options={{
           title: 'Track',
           tabBarIcon: ({ color }) => <TabBarIcon name="clock" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <SimpleLineIcons
-                    name="info"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
         }}
       />
       <Tabs.Screen
         name="metrics"
         options={{
           title: 'Stats',
-          
           tabBarIcon: ({ color }) => <TabBarIcon name="graph" color={color} />,
         }}
       />
@@ -76,6 +60,20 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          headerRight: () => (
+            <Link href="/profilesettings" asChild>
+              <Pressable>
+                {({ pressed }) => (
+                  <SimpleLineIcons
+                    name="settings"
+                    size={25}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
         }}
       />
     </Tabs>
