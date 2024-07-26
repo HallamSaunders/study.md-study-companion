@@ -13,7 +13,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof SimpleLineIcons>['name'];
   color: string;
 }) {
-  return <SimpleLineIcons size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <SimpleLineIcons size={22} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -25,6 +25,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
+        headerShown: useClientOnlyValue(false, true),
         tabBarShowLabel: false,
       }}>
       <Tabs.Screen
