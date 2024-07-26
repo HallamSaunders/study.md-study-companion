@@ -35,32 +35,30 @@ export default function Notes() {
             <Text style={{
                 fontSize: 20,
                 fontWeight: 'bold',
-                color: themeColors.text
+                color: themeColors.text,
+                marginBottom: 40
             }}>Login</Text>
-            <View style={{
-                borderColor: themeColors.tint, 
-                marginTop: 20,
-                marginBottom: 20
-            }} />
-            <TextInput value={email} placeholder='Email' autoCapitalize='none' onChangeText={(text) => setEmail(text)}
+            <TextInput value={email} placeholder='Email' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setEmail(text)}
                 style={{
-                    width: '100%',
+                    width: '80%',
                     height: 40,
                     borderColor: '#eee',
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,
+                    color: themeColors.text
                 }}></TextInput>
-            <TextInput value={password} placeholder='Password' autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true}
+            <TextInput value={password} placeholder='Password' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true}
                 style={{
-                    width: '100%',
+                    width: '80%',
                     height: 40,
                     borderColor: '#eee',
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,
+                    color: themeColors.text
                 }}></TextInput>
             <Link href="createaccountpage" style={styles.link}>
                 <Text style={{
@@ -77,11 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
   },
   link: {
     marginTop: 15,
