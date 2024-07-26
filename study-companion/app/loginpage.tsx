@@ -1,7 +1,7 @@
-import { StyleSheet, TextInput, useColorScheme } from 'react-native';
+import { StyleSheet, TextInput, useColorScheme, View, Text } from 'react-native';
 import { useState } from 'react';
+import { Link } from 'expo-router';
 
-import { Text, View } from '@/components/Themed';
 import Colors from '@/constants/Colors';
 
 //Firebase auth
@@ -37,7 +37,11 @@ export default function Notes() {
                 fontWeight: 'bold',
                 color: themeColors.text
             }}>Login</Text>
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <View style={{
+                borderColor: themeColors.tint, 
+                marginTop: 20,
+                marginBottom: 20
+            }} />
             <TextInput value={email} placeholder='Email' autoCapitalize='none' onChangeText={(text) => setEmail(text)}
                 style={{
                     width: '100%',
@@ -58,6 +62,12 @@ export default function Notes() {
                     paddingHorizontal: 10,
                     marginBottom: 12,
                 }}></TextInput>
+            <Link href="createaccountpage" style={styles.link}>
+                <Text style={{
+                    fontSize: 14,
+                    color: themeColors.text
+                }}>Don't have an account yet? Click here to sign up!</Text>
+            </Link>
         </View>
     );
 }
@@ -72,5 +82,9 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
   }
 });
