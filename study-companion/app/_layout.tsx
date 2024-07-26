@@ -8,9 +8,9 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
 
-//Authorisation and firebase
+//Firebase auth
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/firebase/firebase-config';
+import { FIREBASE_AUTH } from '@/firebase/firebase-config';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -52,10 +52,11 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
+  //Handle authorisation check
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
       console.log('user', user);
       setUser(user);
     })
@@ -63,14 +64,20 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        {user ? (
+      { user ? (
+        <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name='login' options={{ headerShown: false }} />
-        )}
-        <Stack.Screen name="profilesettings" options={{ presentation: 'modal' }} />
-      </Stack>
+          <Stack.Screen name="profilesettings"
+            options={{
+              presentation: 'modal',
+              headerShown: false
+            }} />
+        </Stack>
+      ) : (
+        <Stack>
+          <Stack.Screen name='loginpage' options={{ headerShown: false }}/>
+        </Stack>
+      )}
     </ThemeProvider>
   );
 }
