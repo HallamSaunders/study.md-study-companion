@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import AppIndex from './index';
 
 //Firebase auth
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -20,7 +21,7 @@ export {
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+export default function Layout() {
   const [loaded, error] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
@@ -41,10 +42,10 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return <AppIndex />;
 }
 
-function RootLayoutNav() {
+/*function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   //Handle authorisation check
@@ -77,4 +78,4 @@ function RootLayoutNav() {
       </Stack>
     </ThemeProvider>
   );
-}
+}*/
