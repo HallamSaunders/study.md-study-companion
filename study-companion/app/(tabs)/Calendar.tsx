@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-export default function AuthScreen() {
+export default function Calendar() {
   return (
     <View>
-      <Text>AuthScreen</Text>
+      <Text>calendar</Text>
     </View>
   )
 }
