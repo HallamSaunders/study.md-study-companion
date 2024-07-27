@@ -42,7 +42,35 @@ export default function Layout() {
     return null;
   }
 
-  return <AppIndex />;
+  //Handle authorisation check
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user);
+      setLoading(false); //Set loading to false after checking auth state
+    });
+     //Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  /*useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      console.log('user', user);
+      setUser(user);
+    })
+  }, []);*/
+
+  //FIREBASE_AUTH.signOut();
+  //console.log('User logged out.');
+
+  if (user != null) {
+    console.log('User not null, rendering inside: ', user);
+    return <InsideLayout />
+  } else {
+    console.log('User null, rendering outside: ', user);
+    return <OutsideLayout />
+  }
 }
 
 /*function RootLayoutNav() {
@@ -79,3 +107,30 @@ export default function Layout() {
     </ThemeProvider>
   );
 }*/
+
+function InsideLayout() {
+  const colorScheme = useColorScheme();
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="profilesettings"
+              options={{
+                presentation: 'modal',
+                headerShown: false
+              }}/>
+      </Stack>
+    </ThemeProvider>
+  );
+}
+
+function OutsideLayout() {
+  const colorScheme = useColorScheme();
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name='loginpage' options={{ headerShown: false }}/>
+      </Stack>
+    </ThemeProvider>
+  );
+}

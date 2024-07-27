@@ -52,7 +52,12 @@ export default function AppIndex() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             { user ? (
                 <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> 
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="profilesettings"
+                    options={{
+                        presentation: 'modal',
+                        headerShown: false
+                    }}/>
                 </Stack>
             ) : (
                 <Stack>
@@ -61,4 +66,4 @@ export default function AppIndex() {
             )}
         </ThemeProvider>
     );
-  }
+}
