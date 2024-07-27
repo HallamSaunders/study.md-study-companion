@@ -3,7 +3,7 @@ import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Link } from 'expo-router';
-import { Pressable } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 
 import { Feather } from '@expo/vector-icons';
 
@@ -27,30 +27,42 @@ import Colors from './constants/Colors';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const Tabs = () => (
-  <Tab.Navigator>
-    <Tab.Screen name="Calendar" component={CalendarScreen} />
-    <Tab.Screen name="Metrics" component={MetricsScreen} />
-    <Tab.Screen name="Notes" component={NotesScreen} />
-    <Tab.Screen name="Timer" component={TimerScreen} />
-    <Tab.Screen name="Profile" component={ProfileScreen} options={{
-      headerRight: () => (
-        <Link href='./app/screens/ProfileSettings' asChild>
-          <Pressable>
-            {({ pressed }) => (
-              <Feather
-                name="settings"
-                size={25}
-                color={themeColors.tabIconDefault}
-                style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-              />
-            )}
-          </Pressable>
-        </Link>
-      )
-    }}/>
-  </Tab.Navigator>
-);
+const TabNavigator = () => {
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  console.log('Color scheme: ', colorScheme)
+
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null; // Or a loading spinner
+  }
+
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="Metrics" component={MetricsScreen} />
+      <Tab.Screen name="Notes" component={NotesScreen} />
+      <Tab.Screen name="Timer" component={TimerScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{
+        headerRight: () => (
+          <Link href='./app/screens/ProfileSettings' asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <Feather
+                  name="settings"
+                  size={25}
+                  color={themeColors.tabIconDefault}
+                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                />
+              )}
+            </Pressable>
+          </Link>
+        )
+      }}/>
+    </Tab.Navigator>
+  );
+};
 
 const AppNavigator = () => {
   const colorScheme = useColorScheme();
@@ -67,7 +79,7 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }}/>
+          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}/>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
         )}
