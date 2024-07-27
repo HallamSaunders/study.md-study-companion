@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
+import { NavigationProp } from '@react-navigation/native';
 import { Link } from 'expo-router';
 
 //Authentication
@@ -10,7 +11,12 @@ import { FIREBASE_AUTH } from '../../firebase/firebase-config';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
 
-export default function LoginScreen() {
+interface RouterProps {
+    navigation: NavigationProp<any, any>;
+}
+  
+
+export default function LoginScreen({ navigation }: RouterProps) {
     //Color schemes
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
@@ -77,13 +83,13 @@ export default function LoginScreen() {
                         color: themeColors.text,
                     }}>Log in</Text>        
             </Pressable>
-            <Link href="AuthScreen" style={styles.link}>
+            <Pressable onPress={() => navigation.navigate('AuthScreen')} style={styles.link}>
                 <Text style={{
                     fontSize: 14,
                     color: themeColors.text,
                     marginBottom: 40
                 }}>Don't have an account yet? Click here to sign up!</Text>
-            </Link>
+            </Pressable>
         </View>
     );
 }

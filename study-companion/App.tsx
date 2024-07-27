@@ -11,6 +11,8 @@ import { Feather } from '@expo/vector-icons';
 
 //Auth context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { FIREBASE_AUTH } from './firebase/firebase-config';
 
 //Screens
 import LoginScreen from './app/auth/LoginScreen';
@@ -20,6 +22,7 @@ import NotesScreen from './app/(tabs)/Notes';
 import ProfileScreen from './app/(tabs)/Profile';
 import TimerScreen from './app/(tabs)/Pomodoro';
 import ProfileSettings from './app/screens/ProfileSettings';
+import AuthScreen from './app/auth/AuthScreen';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
@@ -98,26 +101,39 @@ function InsideTabLayout() {
 }
 
 function AuthDependentLayout() {
-  //Use auth provider to determine auth status of user
-  const { user, loading } = useAuth();
-  if (loading) {
-    return null; // Or a loading spinner
-  }
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      console.log('Auth state changed: ', user);
+      setUser(user);
+    })
+  }, []);
 
   //Safe area insets hook
   const insets = useSafeAreaInsets();
 
   return (
     <NavigationContainer>
-      <View style={{ flex: 1, paddingTop: insets.top }}>
-        <Stack.Navigator>
+      <View style={{
+          flex: 1,
+          // Paddings to handle safe area
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        }}>
           {user ? (
-            <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
+            <Stack.Navigator>
+              <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
+              <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
+            </Stack.Navigator>
           ) : (
-            <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
+            <Stack.Navigator>
+              <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
+              <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
+            </Stack.Navigator>
           )}
-          <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
-        </Stack.Navigator>
       </View>
     </NavigationContainer>
   );
@@ -132,9 +148,7 @@ export default function App() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <StatusBar />
       <SafeAreaProvider>
-        <AuthProvider>
-          <AuthDependentLayout />
-        </AuthProvider>
+        <AuthDependentLayout />
       </SafeAreaProvider>
     </ThemeProvider>
   );
