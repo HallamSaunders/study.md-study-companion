@@ -2,15 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer, ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Link } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
+
 
 import { Feather } from '@expo/vector-icons';
 
 //Auth context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { FIREBASE_AUTH } from './firebase/firebase-config';
 
 //Screens
 import LoginScreen from './app/auth/LoginScreen';
@@ -32,28 +32,66 @@ const Tab = createBottomTabNavigator();
 function InsideTabLayout() {
   const colourScheme = useColorScheme();
   const themeColors = colourScheme === 'dark' ? Colors.dark : Colors.light;
+  const iconSize: number = 28;
 
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Metrics" component={MetricsScreen} />
-      <Tab.Screen name="Notes" component={NotesScreen} />
-      <Tab.Screen name="Timer" component={TimerScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{
-        headerRight: () => (
-          <Link href='ProfileSettings' asChild>
-            <Pressable>
-              {({ pressed }) => (
-                <Feather
-                  name="settings"
-                  size={25}
-                  color={themeColors.tabIconDefault}
-                  style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                />
-              )}
-            </Pressable>
-          </Link>
-        )
+    <Tab.Navigator initialRouteName="Timer" screenOptions={{ tabBarShowLabel: false }}>
+      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ 
+        title: "Calendar",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="calendar"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
+      <Tab.Screen name="Notes" component={NotesScreen} options={{ 
+        title: "Notes",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            //name={focused ? "book-open" : "book"}
+            name='book-open'
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
+      <Tab.Screen name="Timer" component={TimerScreen} options={{ 
+        title: "Timer",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="clock"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
+      <Tab.Screen name="Metrics" component={MetricsScreen} options={{ 
+        title: "Metrics",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            //name={focused ? "bar-chart" : "bar-chart-2"}
+            name='bar-chart'
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ 
+        title: "Profile",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="user"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
       }}/>
     </Tab.Navigator>
   );
@@ -66,16 +104,21 @@ function AuthDependentLayout() {
     return null; // Or a loading spinner
   }
 
+  //Safe area insets hook
+  const insets = useSafeAreaInsets();
+
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {user ? (
-          <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
-        )}
-        <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
-      </Stack.Navigator>
+      <View style={{ flex: 1, paddingTop: insets.top }}>
+        <Stack.Navigator>
+          {user ? (
+            <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
+          ) : (
+            <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
+          )}
+          <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
+        </Stack.Navigator>
+      </View>
     </NavigationContainer>
   );
 }
@@ -87,9 +130,12 @@ export default function App() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AuthProvider>
-        <AuthDependentLayout />
-      </AuthProvider>
+      <StatusBar />
+      <SafeAreaProvider>
+        <AuthProvider>
+          <AuthDependentLayout />
+        </AuthProvider>
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }
