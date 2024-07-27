@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer, ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Link } from 'expo-router';
@@ -9,6 +9,8 @@ import { Feather } from '@expo/vector-icons';
 
 //Auth context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { FIREBASE_AUTH } from './firebase/firebase-config';
 
 //Screens
 import LoginScreen from './app/auth/LoginScreen';
@@ -21,22 +23,15 @@ import ProfileSettings from './app/screens/ProfileSettings';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
-import { ThemeProvider, useTheme } from './contexts/ColorThemeContext';
 import Colors from './constants/Colors';
 
+//Stacks and tabs
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const TabNavigator = () => {
-  const colorScheme = useColorScheme();
-  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
-  console.log('Color scheme: ', colorScheme)
-
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return null; // Or a loading spinner
-  }
+function InsideTabLayout() {
+  const colourScheme = useColorScheme();
+  const themeColors = colourScheme === 'dark' ? Colors.dark : Colors.light;
 
   return (
     <Tab.Navigator>
@@ -46,7 +41,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Timer" component={TimerScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{
         headerRight: () => (
-          <Link href='./app/screens/ProfileSettings' asChild>
+          <Link href='ProfileSettings' asChild>
             <Pressable>
               {({ pressed }) => (
                 <Feather
@@ -62,15 +57,11 @@ const TabNavigator = () => {
       }}/>
     </Tab.Navigator>
   );
-};
+}
 
-const AppNavigator = () => {
-  const colorScheme = useColorScheme();
-  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
-  console.log('Color scheme: ', colorScheme)
-
+function AuthDependentLayout() {
+  //Use auth provider to determine auth status of user
   const { user, loading } = useAuth();
-
   if (loading) {
     return null; // Or a loading spinner
   }
@@ -79,21 +70,26 @@ const AppNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }}/>
+          <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
         ) : (
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
         )}
+        <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
+}
 
-const App = () => (
-  <AuthProvider>
-    <ThemeProvider>
-      <AppNavigator />
+export default function App() {
+  //Get color scheme and log it
+  const colorScheme = useColorScheme();
+  console.log('Color scheme: ', colorScheme);
+
+  return (
+    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <AuthProvider>
+        <AuthDependentLayout />
+      </AuthProvider>
     </ThemeProvider>
-  </AuthProvider>
-);
-
-export default App;
+  );
+}
