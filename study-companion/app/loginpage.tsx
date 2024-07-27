@@ -33,7 +33,7 @@ export default function Notes() {
     return (
         <View style={styles.container}>
             <Text style={{
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: 'bold',
                 color: themeColors.text,
                 marginBottom: 40

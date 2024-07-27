@@ -49,17 +49,21 @@ function RootLayoutNav() {
 
   //Handle authorisation check
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log('user', user);
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
-    })
+      setLoading(false); //Set loading to false after checking auth state
+    });
+
+    //Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+      <Stack initialRouteName='loginpage'>
         { user ? (
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         ) : (
