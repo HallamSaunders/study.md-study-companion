@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native';
 
@@ -175,21 +175,25 @@ export default function AuthScreen({ navigation }: RouterProps) {
             ) : (
                 <View></View>
             )}
-            <Pressable onPress={() => signUp(username, email, password, passwordConf, firstName, lastName)}
-                style={{
-                    width: '40%',
-                    height: 40,
-                    borderRadius: 8,
-                    paddingHorizontal: 10,
-                    backgroundColor: themeColors.tint,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{
-                        fontSize: 14,
-                        color: themeColors.text,
-                    }}>Sign Up</Text>        
-            </Pressable>
+            {!loading ? (
+                <Pressable onPress={() => signUp(username, email, password, passwordConf, firstName, lastName)}
+                    style={{
+                        width: '40%',
+                        height: 40,
+                        borderRadius: 8,
+                        paddingHorizontal: 10,
+                        backgroundColor: themeColors.tint,
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: themeColors.text,
+                        }}>Sign Up</Text>        
+                </Pressable>
+            ) : (
+                <ActivityIndicator size='large' color={themeColors.tint}/>
+            )}
             <Pressable onPress={() => navigation.navigate('Login')} style={styles.link}>
                 <Text style={{
                     fontSize: 14,
