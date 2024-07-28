@@ -144,7 +144,7 @@ export default function AuthScreen({ navigation }: RouterProps) {
                     color: themeColors.text
                 }}></TextInput>
             {(!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? (
-                <Text style={{ marginBottom: 12 }}>Please enter a valid email.</Text>
+                <Text style={{ marginBottom: 12, color: themeColors.textAlert }}>Please enter a valid email.</Text>
             ) : (
                 <View></View>
             )}
@@ -171,7 +171,7 @@ export default function AuthScreen({ navigation }: RouterProps) {
                     color: themeColors.text
                 }}></TextInput>
             {!(password === passwordConf) ? (
-                <Text style={{ marginBottom: 12 }}>Please ensure passwords match.</Text>
+                <Text style={{ marginBottom: 12, color: themeColors.textAlert }}>Please ensure passwords match.</Text>
             ) : (
                 <View></View>
             )}
