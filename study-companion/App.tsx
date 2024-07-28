@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer, ThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, ThemeProvider, DarkTheme, DefaultTheme, NavigationProp } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 
 import { Feather } from '@expo/vector-icons';
 
-//Auth context
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+//Auth
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { FIREBASE_AUTH } from './firebase/firebase-config';
+import { getUsernameByUID } from './components/getUsername';
 
 //Screens
 import LoginScreen from './app/auth/LoginScreen';
@@ -27,15 +27,44 @@ import AuthScreen from './app/auth/AuthScreen';
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
 import Colors from './constants/Colors';
-import { getUsernameByUID } from './components/getUsername';
+
+const CustomDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: Colors.dark.primary,
+    background: Colors.dark.background,
+    card: Colors.dark.card,
+    text: Colors.dark.text,
+    border: Colors.dark.border,
+    notification: Colors.dark.notification,
+  },
+};
+
+const CustomLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: Colors.light.primary,
+    background: Colors.light.background,
+    card: Colors.light.card,
+    text: Colors.light.text,
+    border: Colors.light.border,
+    notification: Colors.light.notification,
+  },
+};
 
 //Stacks and tabs
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function InsideTabLayout() {
-  const colourScheme = useColorScheme();
-  const themeColors = colourScheme === 'dark' ? Colors.dark : Colors.light;
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+function InsideTabLayout({ navigation }: RouterProps) {
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   const iconSize: number = 28;
 
   const currentUsername = async (): Promise<string> => {
@@ -117,12 +146,26 @@ function InsideTabLayout() {
             size={iconSize}  
           />
         },
+        headerRight: () => {
+          return <Pressable onPress={() => navigation.navigate('ProfileSettings')}>
+            <Feather 
+              name='settings'
+              color={themeColors.tabIconDefault}
+              size={iconSize}
+              style={{
+                marginRight: 12
+              }}
+            />
+          </Pressable>
+        }
       }}/>
     </Tab.Navigator>
   );
 }
 
 function AuthDependentLayout() {
+  const colorScheme = useColorScheme();
+  
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -136,7 +179,7 @@ function AuthDependentLayout() {
   const insets = useSafeAreaInsets();
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
       <View style={{
           flex: 1,
           // Paddings to handle safe area
@@ -164,11 +207,13 @@ function AuthDependentLayout() {
 export default function App() {
   //Get color scheme and log it
   const colorScheme = useColorScheme();
-  //console.log('Color scheme: ', colorScheme);
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  //const colorScheme = 'dark';
+  console.log('Color scheme: ', colorScheme);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <StatusBar />
+    <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
+      <StatusBar backgroundColor={themeColors.background}/>
       <SafeAreaProvider>
         <AuthDependentLayout />
       </SafeAreaProvider>
