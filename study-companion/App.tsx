@@ -27,6 +27,7 @@ import AuthScreen from './app/auth/AuthScreen';
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
 import Colors from './constants/Colors';
+import { getUsernameByUID } from './components/getUsername';
 
 //Stacks and tabs
 const Stack = createNativeStackNavigator();
@@ -36,6 +37,29 @@ function InsideTabLayout() {
   const colourScheme = useColorScheme();
   const themeColors = colourScheme === 'dark' ? Colors.dark : Colors.light;
   const iconSize: number = 28;
+
+  const currentUsername = async (): Promise<string> => {
+    const currentUser = FIREBASE_AUTH.currentUser;
+    let username: string = 'Profile';
+  
+    if (currentUser) {
+      username = await getUsernameByUID(currentUser.uid) || 'Profile';
+    }
+  
+    //console.log('Username:', username);
+    return username;
+  };
+
+  const [title, setTitle] = useState<string>('Profile');
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      const username = await currentUsername();
+      setTitle(username);
+    };
+
+    fetchUsername();
+  }, []);
 
   return (
     <Tab.Navigator initialRouteName="Timer" screenOptions={{ tabBarShowLabel: false }}>
@@ -55,7 +79,6 @@ function InsideTabLayout() {
         headerShown: false,
         tabBarIcon: ({ focused }) => {
           return <Feather
-            //name={focused ? "book-open" : "book"}
             name='book-open'
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
             size={iconSize}  
@@ -78,7 +101,6 @@ function InsideTabLayout() {
         headerShown: false,
         tabBarIcon: ({ focused }) => {
           return <Feather
-            //name={focused ? "bar-chart" : "bar-chart-2"}
             name='bar-chart'
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
             size={iconSize}  
@@ -86,15 +108,15 @@ function InsideTabLayout() {
         }
       }}/>
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ 
-        title: "Profile",
-        headerShown: false,
+        title: title,
+        headerShown: true,
         tabBarIcon: ({ focused }) => {
           return <Feather
             name="user"
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
             size={iconSize}  
           />
-        }
+        },
       }}/>
     </Tab.Navigator>
   );
@@ -105,7 +127,7 @@ function AuthDependentLayout() {
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log('Auth state changed: ', user);
+      //console.log('Auth state changed: ', user);
       setUser(user);
     })
   }, []);
@@ -142,7 +164,7 @@ function AuthDependentLayout() {
 export default function App() {
   //Get color scheme and log it
   const colorScheme = useColorScheme();
-  console.log('Color scheme: ', colorScheme);
+  //console.log('Color scheme: ', colorScheme);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
