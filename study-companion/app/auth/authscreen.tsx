@@ -176,31 +176,33 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 <View></View>
             )}
             {!loading ? (
-                <Pressable onPress={() => signUp(username, email, password, passwordConf, firstName, lastName)}
-                    style={{
-                        width: '40%',
-                        height: 40,
-                        borderRadius: 8,
-                        paddingHorizontal: 10,
-                        backgroundColor: themeColors.tint,
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
+                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    <Pressable onPress={() => signUp(username, email, password, passwordConf, firstName, lastName)}
+                        style={{
+                            width: '40%',
+                            height: 40,
+                            borderRadius: 8,
+                            paddingHorizontal: 10,
+                            backgroundColor: themeColors.tint,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Sign Up</Text>        
+                    </Pressable>
+                    <Pressable onPress={() => navigation.navigate('Login')} style={styles.link}>
                         <Text style={{
                             fontSize: 14,
                             color: themeColors.text,
-                        }}>Sign Up</Text>        
-                </Pressable>
+                            marginBottom: 40
+                        }}>Already have an account? Click here to log in!</Text>
+                    </Pressable>
+                </View>
             ) : (
                 <ActivityIndicator size='large' color={themeColors.tint}/>
             )}
-            <Pressable onPress={() => navigation.navigate('Login')} style={styles.link}>
-                <Text style={{
-                    fontSize: 14,
-                    color: themeColors.text,
-                    marginBottom: 40
-                }}>Already have an account? Click here to log in!</Text>
-            </Pressable>
         </View>
     );
 }

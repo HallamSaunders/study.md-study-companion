@@ -1,7 +1,6 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native';
-import { Link } from 'expo-router';
 
 //Authentication
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -50,46 +49,57 @@ export default function LoginScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: themeColors.border,
+                    borderColor: (email === '') ? themeColors.borderAlert : themeColors.border,
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
-                    marginBottom: 12,
+                    marginBottom: (!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? 2 : 12,
                     color: themeColors.text
                 }}></TextInput>
+            {(!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? (
+                <Text style={{ marginBottom: 12 }}>Please enter a valid email.</Text>
+            ) : (
+                <View></View>
+            )}
             <TextInput value={password} placeholder='Password' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true}
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: themeColors.border,
+                    borderColor: (password === '') ? themeColors.borderAlert : themeColors.border,
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,
                     color: themeColors.text
                 }}></TextInput>
-            <Pressable onPress={signIn}
-                style={{
-                    width: '40%',
-                    height: 40,
-                    borderRadius: 8,
-                    paddingHorizontal: 10,
-                    backgroundColor: themeColors.tint,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{
-                        fontSize: 14,
-                        color: themeColors.text,
-                    }}>Log in</Text>        
-            </Pressable>
-            <Pressable onPress={() => navigation.navigate('AuthScreen')} style={styles.link}>
-                <Text style={{
-                    fontSize: 14,
-                    color: themeColors.text,
-                    marginBottom: 40
-                }}>Don't have an account yet? Click here to sign up!</Text>
-            </Pressable>
+            {!loading ? (
+                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    <Pressable onPress={signIn}
+                        style={{
+                            width: '40%',
+                            height: 40,
+                            borderRadius: 8,
+                            paddingHorizontal: 10,
+                            backgroundColor: themeColors.tint,
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Log in</Text>        
+                    </Pressable>
+                    <Pressable onPress={() => navigation.navigate('AuthScreen')} style={styles.link}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: themeColors.text,
+                            marginBottom: 40
+                        }}>Don't have an account yet? Click here to sign up!</Text>
+                    </Pressable>
+                </View>
+            ) : (
+                <ActivityIndicator size='large' color={themeColors.tint}/>
+            )}
         </View>
     );
 }
