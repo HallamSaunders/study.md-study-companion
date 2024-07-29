@@ -27,6 +27,7 @@ import AuthScreen from './app/auth/AuthScreen';
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
 import Colors from './constants/Colors';
+import { useNavigation } from 'expo-router';
 
 const CustomDarkTheme = {
   ...DarkTheme,
@@ -139,6 +140,7 @@ function InsideTabLayout({ navigation }: RouterProps) {
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ 
         title: title,
         headerShown: true,
+        headerTitleAlign: 'center',
         tabBarIcon: ({ focused }) => {
           return <Feather
             name="user"
@@ -163,8 +165,29 @@ function InsideTabLayout({ navigation }: RouterProps) {
   );
 }
 
+const HeaderLeft = ({ navigation }: RouterProps) => {
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  const iconSize: number = 28;
+
+  return (
+    <Pressable onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}>
+      <Feather 
+        name='arrow-left-circle'
+        color={themeColors.tabIconDefault}
+        size={iconSize}
+        style={{
+          marginRight: 12
+        }}
+      />
+    </Pressable>
+  );
+};
+
 function AuthDependentLayout() {
   const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  const iconSize: number = 28;
   
   const [user, setUser] = useState<User | null>(null);
 
@@ -177,30 +200,44 @@ function AuthDependentLayout() {
 
   //Safe area insets hook
   const insets = useSafeAreaInsets();
+  //const navigation = useNavigation();
 
   return (
-    <NavigationContainer theme={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
-      <View style={{
-          flex: 1,
-          // Paddings to handle safe area
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-        }}>
-          {user ? (
-            <Stack.Navigator>
-              <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
-              <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{ headerShown: false }}/>
-            </Stack.Navigator>
-          ) : (
-            <Stack.Navigator>
-              <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
-              <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
-            </Stack.Navigator>
-          )}
-      </View>
-    </NavigationContainer>
+    <View style={{
+        flex: 1,
+        // Paddings to handle safe area
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
+      }}>
+        {user ? (
+          <Stack.Navigator>
+            <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
+            <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{
+              title: 'Settings',
+              headerTitleAlign: 'center',
+              /*headerLeft: () => {
+                return <Pressable onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}>
+                  <Feather 
+                    name='arrow-left'
+                    color={themeColors.tabIconDefault}
+                    size={iconSize}
+                    style={{
+                      marginRight: 12
+                    }}
+                  />
+                </Pressable>
+              }*/
+            }}/>
+          </Stack.Navigator>
+        ) : (
+          <Stack.Navigator>
+            <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
+            <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
+          </Stack.Navigator>
+        )}
+    </View>
   );
 }
 
@@ -215,7 +252,9 @@ export default function App() {
     <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
       <StatusBar backgroundColor={themeColors.background}/>
       <SafeAreaProvider>
-        <AuthDependentLayout />
+        <NavigationContainer>
+          <AuthDependentLayout />
+        </NavigationContainer>
       </SafeAreaProvider>
     </ThemeProvider>
   );

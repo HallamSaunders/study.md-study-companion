@@ -1,23 +1,35 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 //Firebase auth
 import { FIREBASE_AUTH } from '../../firebase/firebase-config'
 
+//Color schemes
+import Colors from '../../constants/Colors';
+import { useColorScheme } from '../../components/useColorScheme';
+
+const Stack = createNativeStackNavigator();
+
 export default function ProfileSettings() {
+  //Color schemes
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+  
   return (
-    <View>
-      <Text>ProfileSettings</Text>
+    <View style={styles.container}>
       <Pressable onPress={() => FIREBASE_AUTH.signOut()}
         style={{
-            borderRadius: 8,
+            width: '80%',
             paddingVertical: 10,
             paddingHorizontal: 20,
             alignItems: 'center',
             marginBottom: 10,
+            justifyContent: 'flex-end',
             backgroundColor: 'transparent',
-            borderColor: '#ff0000',
+            borderColor: themeColors.borderAlert,
             borderWidth: 1,
+            borderRadius: 8,
           }}>
         <Text>Sign Out</Text>
       </Pressable>
@@ -25,4 +37,22 @@ export default function ProfileSettings() {
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
+  },
+  containerBottom: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+    position: 'absolute',
+},
+  link: {
+      marginTop: 15,
+      paddingVertical: 15,
+  }
+})
