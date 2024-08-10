@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 
 //Color schemes
 import { useColorScheme } from '../../components/useColorScheme';
@@ -55,6 +55,32 @@ export default function Pomodoro() {
     return (getHours == "00") ? `${getMinutes}:${getSeconds}` : `${getHours}:${getMinutes}:${getSeconds}`;
   };
 
+  //Get width for borders
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [percentFilled, setPercentageFilled] = useState(0);
+
+  const calculatePercentageFilled = () => {
+    const percentFilled = ((stopwatchTime % 60) / 60);
+    setPercentageFilled(percentFilled);
+  };
+
+  const getWidthInPixels = () => {
+    return (percentFilled) * containerWidth;
+  };
+
+  const getAntiWidthInPixels = () => {
+    return (1-percentFilled) * containerWidth;
+  };
+
+  const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
+    const { width } = event.nativeEvent.layout;
+    setContainerWidth(width);
+  };
+
+  useEffect(() => {
+    calculatePercentageFilled();
+  }, [stopwatchTime]);
+
   return (
     <View style={{
       backgroundColor: themeColors.background,
@@ -98,9 +124,31 @@ export default function Pomodoro() {
           width: '100%',
           marginTop: 40
         }}>
-          <Text style={{
+          <View onLayout={handleLayout} style={{
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignContent: 'center',
             marginBottom: 40
-          }}>{formatTime(stopwatchTime)}</Text>
+          }}>
+            <Text style={{
+              fontSize: 60,
+              color: themeColors.text
+            }}>{formatTime(stopwatchTime)}</Text>
+            <View style={{
+              
+            }}>
+              <View style={{
+                borderBottomColor: themeColors.tint,
+                borderBottomWidth: 3,
+                width: getWidthInPixels()
+              }}></View>
+              <View style={{
+                borderBottomColor: themeColors.subtleText,
+                borderBottomWidth: 3,
+                width: getAntiWidthInPixels()
+              }}></View>
+            </View>
+          </View>
           <Pressable onPress={() => startStopwatch()}
             style={{
               width: '40%',
