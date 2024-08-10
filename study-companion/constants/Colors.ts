@@ -16,6 +16,8 @@ export default {
         tint: tintColorLight,
         tabIconDefault: '#cccccc',
         tabIconSelected: tintColorLight,
+        subtleBackground: "#e6e6e6",
+        backgroundSelected: "#cccccc"
     },
     dark: {
         primary: '#1a1a1a',
@@ -31,5 +33,7 @@ export default {
         tint: tintColorDark,
         tabIconDefault: '#ccc',
         tabIconSelected: tintColorDark,
+        subtleBackground: "#e6e6e6",
+        backgroundSelected: "#cccccc"
     },
 };
