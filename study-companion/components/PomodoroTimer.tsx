@@ -19,27 +19,51 @@ const PomodoroTimer = () => {
     const [running, setRunning] = useState(false);
     const [paused, setPaused] = useState(false);
     const [stopped, setStopped] = useState(true);
-    const [working, setWorking] = useState(false);
+    const [working, setWorking] = useState(true);
     const [editBreak, setEditBreak] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
   
     const startPomodoro = () => {
-        if (paused) {
-            timerRef.current = setInterval(() => {
-                setPomodoroInterval(prevTime => prevTime - 1);
-            }, 1000);
-        }
-        if (stopped) {
-            setPomodoroInterval(pomodoroStartingInterval);
-            timerRef.current = setInterval(() => {
-                setPomodoroInterval(prevTime => prevTime - 1);
-            }, 1000);
+        if (paused || stopped) {
+            if (stopped) setPomodoroInterval(pomodoroStartingInterval);
+            if (working) {
+                if (pomodoroInterval > 1) {
+                    timerRef.current = setInterval(() => {
+                        setPomodoroInterval(prevTime => prevTime - 1);
+                    }, 1000);
+                }  else {
+                    handleSwitchToBreak();
+                }
+            } else {
+                if (breakInterval > 1) {
+                    timerRef.current = setInterval(() => {
+                        setBreakInterval(prevTime => prevTime - 1);
+                    }, 1000);
+                }  else {
+                    handleSwitchToStudy();
+                }
+            }
         }
         setRunning(true);
         setPaused(false);
         setStopped(false);
     };
-  
+
+    //Change to break time when study time is over
+    const handleSwitchToBreak = () => {
+        setPomodoroInterval(breakStartingInterval);
+        setRunning(true);
+        setWorking(false);
+        startPomodoro();
+    }
+
+    const handleSwitchToStudy = () => {
+        setPomodoroInterval(pomodoroStartingInterval);
+        setRunning(true);
+        setWorking(true);
+        startPomodoro();
+    }
+
     const pausePomodoro = () => {
         if (running && timerRef.current) {
             clearInterval(timerRef.current);
@@ -49,7 +73,7 @@ const PomodoroTimer = () => {
         setPaused(true);
         setStopped(false);
     };
-  
+
     const resetPomodoro = () => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -137,30 +161,50 @@ const PomodoroTimer = () => {
             //borderRadius: 8,
             }}>
 
+            {/* RENDER TIMER NAME DEPENDING ON STATE */}
+            { running || paused ? (
+                <View>
+                    { working ? (
+                        <Text style={{
+                            fontSize: 48
+                        }}>Study</Text>
+                    ) : (
+                        <Text style={{
+                            fontSize: 48
+                        }}>Break</Text>
+                    )}
+                </View>
+            ) : (
+                <View></View>
+            )}
+
             {/* RENDER STUDY/BREAK TOGGLE */}
-            <View style={{
-                flexDirection: 'row'
-                }}>
-                <Pressable onPress={() => setEditBreak(false)}
-                    style={{
-                        marginRight: 5,
-                        backgroundColor: (editBreak ? themeColors.background : themeColors.backgroundSelected),
-                        padding: 5,
-                        borderRadius: 8
-                        }}>
-                    <Text>Study</Text>
-                </Pressable>
-                <Pressable onPress={() => setEditBreak(true)}
-                    style={{
-                        marginRight: 5,
-                        backgroundColor: (editBreak ? themeColors.backgroundSelected : themeColors.background),
-                        padding: 5,
-                        borderRadius: 8
-                        }}>
-                    <Text>Break</Text>
-                </Pressable> 
-            
-            </View>
+            { stopped ? (
+                <View style={{
+                    flexDirection: 'row'
+                    }}>
+                    <Pressable onPress={() => setEditBreak(false)}
+                        style={{
+                            marginRight: 5,
+                            backgroundColor: (editBreak ? themeColors.background : themeColors.backgroundSelected),
+                            padding: 5,
+                            borderRadius: 8
+                            }}>
+                        <Text>Study</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setEditBreak(true)}
+                        style={{
+                            marginRight: 5,
+                            backgroundColor: (editBreak ? themeColors.backgroundSelected : themeColors.background),
+                            padding: 5,
+                            borderRadius: 8
+                            }}>
+                        <Text>Break</Text>
+                    </Pressable> 
+                </View>
+            ) : (
+                <View></View>
+            )}
 
             {/* RENDER TIMER AND PROGRESS BAR DEPENDING ON RUNNING OR NOT */}
             { running || paused ? (
