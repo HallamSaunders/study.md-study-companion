@@ -12,79 +12,140 @@ const PomodoroTimer = () => {
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
     
     //Timers
-    const [pomodoroStartingInterval, setPomodoroStartingInterval] = useState(1500);
     const [pomodoroInterval, setPomodoroInterval] = useState(1500);
-    const [breakStartingInterval, setBreakStartingInterval] = useState(300);
     const [breakInterval, setBreakInterval] = useState(300);
+    const [timer, setTimer] = useState(1500);
     const [running, setRunning] = useState(false);
     const [paused, setPaused] = useState(false);
     const [stopped, setStopped] = useState(true);
-    const [working, setWorking] = useState(true);
-    const [editBreak, setEditBreak] = useState(false);
+    const [studying, setStudying] = useState(true);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-  
-    const startPomodoro = () => {
-        if (paused || stopped) {
-            if (stopped) setPomodoroInterval(pomodoroStartingInterval);
-            if (working) {
-                if (pomodoroInterval > 1) {
-                    timerRef.current = setInterval(() => {
-                        setPomodoroInterval(prevTime => prevTime - 1);
-                    }, 1000);
-                }  else {
-                    handleSwitchToBreak();
-                }
+
+    //Handle change to breaking and studying
+    useEffect(() => {
+        if (studying) {
+            setTimer(pomodoroInterval);
+        } else {
+            setTimer(breakInterval);
+        }
+    }, [studying])
+
+    //Handle states when running/paused/stopped
+    useEffect(() => {
+        if (running && !paused) {
+            timerRef.current = setInterval(() => {
+                setTimer((prevInterval) => {
+                    if (prevInterval > 0) {
+                        return prevInterval - 1;
+                    } else {
+                        //Handle clearing interval if it hits 0
+                        if (timerRef.current) {
+                            clearInterval(timerRef.current);
+                            timerRef.current = null;
+                        }
+                        setStudying((prevStudying) => !prevStudying);
+                        return 0;
+                    }
+                });
+            }, 1000);
+        }
+        if (stopped) {
+            if (studying) {
+                setPomodoroInterval(1500);
             } else {
-                if (breakInterval > 1) {
-                    timerRef.current = setInterval(() => {
-                        setBreakInterval(prevTime => prevTime - 1);
-                    }, 1000);
-                }  else {
-                    handleSwitchToStudy();
+                setBreakInterval(300);
+            }
+        }
+
+        //Cleanup interval on unmount or when running/working/paused changes
+        return () => {
+            if (timerRef.current !== null) {
+                clearInterval(timerRef.current);
+                timerRef.current = null; //Reset after clearing
+            }
+        };
+    }, [running, paused, stopped, studying])
+
+    //Update intervals when they change
+    useEffect(() => {
+        console.log("Pomodoro updated to: ", pomodoroInterval);
+        console.log("Break updated to: ", breakInterval);
+
+        //Update timer to match intervals
+        if (stopped) {
+            if (studying) {
+                setTimer(pomodoroInterval);
+            } else {
+                setTimer(breakInterval);
+            }
+        }
+    }, [pomodoroInterval, breakInterval])
+
+    //Update timer when it changes
+    useEffect(() => {
+        console.log("Timer updated to: ", timer);
+    }, [timer])
+
+    const startPomodoro = () => {
+        if (stopped || paused) {
+            setRunning(true);
+            setPaused(false);
+            setStopped(false);
+            if (stopped) {
+                if (studying) {
+                    setTimer(pomodoroInterval);
+                } else {
+                    setTimer(breakInterval);
                 }
             }
         }
-        setRunning(true);
-        setPaused(false);
-        setStopped(false);
     };
-
-    //Change to break time when study time is over
-    const handleSwitchToBreak = () => {
-        setPomodoroInterval(breakStartingInterval);
-        setRunning(true);
-        setWorking(false);
-        startPomodoro();
-    }
-
-    const handleSwitchToStudy = () => {
-        setPomodoroInterval(pomodoroStartingInterval);
-        setRunning(true);
-        setWorking(true);
-        startPomodoro();
-    }
 
     const pausePomodoro = () => {
-        if (running && timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
+        if (running) {
+            setRunning(false);
+            setPaused(true);
+            setStopped(false);
         }
-        setRunning(false);
-        setPaused(true);
-        setStopped(false);
+    };
+    
+    const resetPomodoro = () => {
+        if (paused) {
+            setRunning(false);
+            setPaused(false);
+            setStopped(true);
+            if (studying) {
+                setTimer(pomodoroInterval);
+            } else {
+                setTimer(breakInterval);
+            }
+        }
     };
 
-    const resetPomodoro = () => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
+    const handleIncrement = () => {
+        if (studying) {
+            setPomodoroInterval(pomodoroInterval + 300);
+        } else {
+            setBreakInterval(breakInterval + 60);
         }
-        setRunning(false);
-        setPaused(false);
-        setStopped(true);
-        setPomodoroInterval(pomodoroStartingInterval);
-    };
-  
+    }
+
+    const handleDecrement = () => {
+        if (studying) {
+            if (pomodoroInterval >= 600) setPomodoroInterval(pomodoroInterval - 300);
+        } else {
+            if (breakInterval >= 120) setBreakInterval(breakInterval - 60);
+        }
+    }
+
+    const handleDefaultReset = () => {
+        if (studying) {
+            setPomodoroInterval(1500);
+        } else {
+            setBreakInterval(300);
+        }
+    }
+
     const formatTime = (time: number) => {
         const getSeconds = `0${time % 60}`.slice(-2);
         const minutes = Math.floor(time / 60);
@@ -98,8 +159,10 @@ const PomodoroTimer = () => {
     const [percentFilled, setPercentageFilled] = useState(0);
   
     const calculatePercentageFilled = () => {
-        const percentFilled = (pomodoroInterval / pomodoroStartingInterval);
-        setPercentageFilled(percentFilled);
+        if (pomodoroInterval > 0 && breakInterval > 0) {
+            const percentFilled = (studying) ? (timer / pomodoroInterval) : (timer / breakInterval);
+            setPercentageFilled(percentFilled);
+        }
     };
   
     const getWidthInPixels = () => {
@@ -117,38 +180,7 @@ const PomodoroTimer = () => {
   
     useEffect(() => {
         calculatePercentageFilled();
-    }, [pomodoroInterval]);
-  
-    //Handle incremenet/decrementing values
-    const handleIncrement = () => {
-        if (stopped) {
-            if (editBreak) {
-                setBreakStartingInterval(breakStartingInterval + 60);
-            } else {
-                setPomodoroStartingInterval(pomodoroStartingInterval + 300);
-            }
-        }
-    }
-
-    const handleDecrement = () => {
-        if (stopped) {
-            if (editBreak) {
-                if (breakStartingInterval > 0) setBreakStartingInterval(breakStartingInterval - 60);
-            } else {
-                if (pomodoroStartingInterval > 0) setPomodoroStartingInterval(pomodoroStartingInterval - 300);
-            }
-        }
-    }
-
-    const handleDefaultReset= () => {
-        if (stopped) {
-            if (editBreak) {
-                setBreakStartingInterval(300);
-            } else {
-                setPomodoroStartingInterval(1500);
-            }
-        }
-    }
+    }, [timer]);
 
     return (
         <View onLayout={handleLayout} style={{
@@ -156,15 +188,12 @@ const PomodoroTimer = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            //borderColor: themeColors.border,
-            //borderWidth: 1,
-            //borderRadius: 8,
             }}>
 
             {/* RENDER TIMER NAME DEPENDING ON STATE */}
             { running || paused ? (
                 <View>
-                    { working ? (
+                    { studying ? (
                         <Text style={{
                             fontSize: 48
                         }}>Study</Text>
@@ -183,19 +212,19 @@ const PomodoroTimer = () => {
                 <View style={{
                     flexDirection: 'row'
                     }}>
-                    <Pressable onPress={() => setEditBreak(false)}
+                    <Pressable onPress={() => setStudying(true)}
                         style={{
                             marginRight: 5,
-                            backgroundColor: (editBreak ? themeColors.background : themeColors.backgroundSelected),
+                            backgroundColor: (studying ? themeColors.backgroundSelected : themeColors.background),
                             padding: 5,
                             borderRadius: 8
                             }}>
                         <Text>Study</Text>
                     </Pressable>
-                    <Pressable onPress={() => setEditBreak(true)}
+                    <Pressable onPress={() => setStudying(false)}
                         style={{
                             marginRight: 5,
-                            backgroundColor: (editBreak ? themeColors.backgroundSelected : themeColors.background),
+                            backgroundColor: (studying ? themeColors.background : themeColors.backgroundSelected),
                             padding: 5,
                             borderRadius: 8
                             }}>
@@ -206,141 +235,80 @@ const PomodoroTimer = () => {
                 <View></View>
             )}
 
-            {/* RENDER TIMER AND PROGRESS BAR DEPENDING ON RUNNING OR NOT */}
-            { running || paused ? (
-                <View style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    }}>
-                        <Text style={{
-                            fontSize: 60,
-                            color: themeColors.text,
-                            }}>{formatTime(pomodoroInterval)}</Text>
-                    <View style={{
-                        flexDirection: 'row',
-                        }}>
-                        <View style={{
-                            borderBottomColor: themeColors.tint,
-                            borderBottomWidth: 3,
-                            width: getWidthInPixels(),
-                            maxWidth: '100%'
-                            }}></View>
-                        <View style={{
-                            borderBottomColor: themeColors.subtleText,
-                            borderBottomWidth: 3,
-                            width: getAntiWidthInPixels(),
-                            maxWidth: '100%'
-                            }}></View>
-                    </View>
-                </View>
-            ) : (
-                <View style={{
-                    justifyContent: 'center',
-                    alignItems: 'center',
+            {/* RENDER TIMER AND PROGRESS BAR */}
+            <View style={{
+                justifyContent: 'center',
+                alignItems: 'center',
                 }}>
-                    { editBreak ? (
-                        <Text style={{
-                            fontSize: 60,
-                            color: themeColors.text
-                        }}>{formatTime(breakStartingInterval)}</Text>
-                    ) : (
-                        <Text style={{
-                            fontSize: 60,
-                            color: themeColors.text
-                        }}>{formatTime(pomodoroStartingInterval)}</Text>
-                    )}
-                    <View style={{
-                        flexDirection: 'row'
+                    <Text style={{
+                        fontSize: 60,
+                        color: themeColors.text,
+                        }}>{formatTime(timer)}</Text>
+                <View style={{
+                    flexDirection: 'row',
                     }}>
-                        <View style={{
-                            borderBottomColor: themeColors.tint,
-                            borderBottomWidth: 3,
-                            width: containerWidth
+                    <View style={{
+                        borderBottomColor: themeColors.tint,
+                        borderBottomWidth: 3,
+                        width: getWidthInPixels(),
+                        maxWidth: '100%'
                         }}></View>
-                    </View>
+                    <View style={{
+                        borderBottomColor: themeColors.subtleText,
+                        borderBottomWidth: 3,
+                        width: getAntiWidthInPixels(),
+                        maxWidth: '100%'
+                        }}></View>
                 </View>
-            )}
+            </View>
 
             {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
-            { editBreak ? (
-                <View
+            <View
+                style={{
+                    marginTop: 12,
+                    height: 30,
+                    backgroundColor: themeColors.background,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    }}>
+                <Pressable onPress={() => handleDecrement()}
                     style={{
-                        marginTop: 12,
-                        height: 30,
+                        marginRight: 5,
                         backgroundColor: themeColors.background,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        flexDirection: 'row',
-                        }}>
-                    <Pressable onPress={() => handleDecrement()}
-                        style={{
-                            marginRight: 5,
-                            backgroundColor: themeColors.background,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <Feather name='arrow-down-circle'
-                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                            size={24}/>
-                    </Pressable>
+                    }}>
+                    <Feather name='arrow-down-circle'
+                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                        size={24}/>
+                </Pressable>
+                { studying ? (
                     <Text style={{
-                            fontSize: 14,
-                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                        }}>Increment 1 min</Text>
-                    <Pressable onPress={() => handleIncrement()}
-                        style={{
-                            marginLeft: 5,
-                            backgroundColor: themeColors.background,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <Feather name='arrow-up-circle'
-                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                            size={24}/>
-                    </Pressable>
-                </View>
-            ) : (
-                <View
+                        fontSize: 14,
+                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                    }}>Increment 5 mins</Text>
+                ) : (
+                    <Text style={{
+                        fontSize: 14,
+                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                    }}>Increment 1 min</Text>
+                )}
+                <Pressable onPress={() => handleIncrement()}
                     style={{
-                        marginTop: 12,
-                        height: 30,
+                        marginLeft: 5,
                         backgroundColor: themeColors.background,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        flexDirection: 'row',
-                        }}>
-                    <Pressable onPress={() => handleDecrement()}
-                        style={{
-                            marginRight: 5,
-                            backgroundColor: themeColors.background,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <Feather name='arrow-down-circle'
-                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                            size={24}/>
-                    </Pressable>
-                    <Text style={{
-                            fontSize: 14,
-                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                        }}>Increment 5 mins</Text>
-                    <Pressable onPress={() => handleIncrement()}
-                        style={{
-                            marginLeft: 5,
-                            backgroundColor: themeColors.background,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <Feather name='arrow-up-circle'
-                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                            size={24}/>
-                    </Pressable>
-                </View>
-            )}
+                    }}>
+                    <Feather name='arrow-up-circle'
+                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                        size={24}/>
+                </Pressable>
+            </View>
 
             {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
-            { editBreak ? (
-                <View
+            <View
                 style={{
                     height: 30,
                     backgroundColor: themeColors.background,
@@ -355,35 +323,19 @@ const PomodoroTimer = () => {
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                    <Text style={{
-                        fontSize: 14,
-                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                    }}>Reset to 5 mins</Text>
-                </Pressable>
-            </View>
-            ) : (
-                <View
-                    style={{
-                        height: 30,
-                        backgroundColor: themeColors.background,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        }}>
-                    <Pressable onPress={() => handleDefaultReset()}
-                        style={{
-                            marginTop: 12,
-                            height: 20,
-                            backgroundColor: themeColors.background,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
+                    { studying ? (
                         <Text style={{
                             fontSize: 14,
                             color: stopped ? themeColors.text : themeColors.tabIconDefault,
                         }}>Reset to 25 mins</Text>
-                    </Pressable>
-                </View>
-            )}
+                    ) : (
+                        <Text style={{
+                            fontSize: 14,
+                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                        }}>Reset to 5 mins</Text>
+                    )}
+                </Pressable>
+            </View>
 
             {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
             <View style={{
@@ -452,6 +404,7 @@ const PomodoroTimer = () => {
                     <View></View>
                 )}
             </View>
+
         </View>
     )
 }
