@@ -14,9 +14,13 @@ const PomodoroTimer = () => {
     //Timers
     const [pomodoroStartingInterval, setPomodoroStartingInterval] = useState(1500);
     const [pomodoroInterval, setPomodoroInterval] = useState(1500);
+    const [breakStartingInterval, setBreakStartingInterval] = useState(300);
+    const [breakInterval, setBreakInterval] = useState(300);
     const [running, setRunning] = useState(false);
     const [paused, setPaused] = useState(false);
     const [stopped, setStopped] = useState(true);
+    const [working, setWorking] = useState(false);
+    const [editBreak, setEditBreak] = useState(false);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
   
     const startPomodoro = () => {
@@ -93,15 +97,33 @@ const PomodoroTimer = () => {
   
     //Handle incremenet/decrementing values
     const handleIncrement = () => {
-        if (stopped) setPomodoroStartingInterval(pomodoroStartingInterval + 300);
+        if (stopped) {
+            if (editBreak) {
+                setBreakStartingInterval(breakStartingInterval + 60);
+            } else {
+                setPomodoroStartingInterval(pomodoroStartingInterval + 300);
+            }
+        }
     }
 
     const handleDecrement = () => {
-        if (pomodoroStartingInterval > 0 && stopped) setPomodoroStartingInterval(pomodoroStartingInterval - 300);
+        if (stopped) {
+            if (editBreak) {
+                if (breakStartingInterval > 0) setBreakStartingInterval(breakStartingInterval - 60);
+            } else {
+                if (pomodoroStartingInterval > 0) setPomodoroStartingInterval(pomodoroStartingInterval - 300);
+            }
+        }
     }
 
     const handleDefaultReset= () => {
-        if (stopped) setPomodoroStartingInterval(1500);
+        if (stopped) {
+            if (editBreak) {
+                setBreakStartingInterval(300);
+            } else {
+                setPomodoroStartingInterval(1500);
+            }
+        }
     }
 
     return (
@@ -110,43 +132,79 @@ const PomodoroTimer = () => {
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-        }}>
+            //borderColor: themeColors.border,
+            //borderWidth: 1,
+            //borderRadius: 8,
+            }}>
+
+            {/* RENDER STUDY/BREAK TOGGLE */}
+            <View style={{
+                flexDirection: 'row'
+                }}>
+                <Pressable onPress={() => setEditBreak(false)}
+                    style={{
+                        marginRight: 5,
+                        backgroundColor: (editBreak ? themeColors.background : themeColors.backgroundSelected),
+                        padding: 5,
+                        borderRadius: 8
+                        }}>
+                    <Text>Study</Text>
+                </Pressable>
+                <Pressable onPress={() => setEditBreak(true)}
+                    style={{
+                        marginRight: 5,
+                        backgroundColor: (editBreak ? themeColors.backgroundSelected : themeColors.background),
+                        padding: 5,
+                        borderRadius: 8
+                        }}>
+                    <Text>Break</Text>
+                </Pressable> 
+            
+            </View>
+
+            {/* RENDER TIMER AND PROGRESS BAR DEPENDING ON RUNNING OR NOT */}
             { running || paused ? (
                 <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     }}>
                         <Text style={{
                             fontSize: 60,
                             color: themeColors.text,
-
-                        }}>{formatTime(pomodoroInterval)}</Text>
-                        <View style={{
-                            flexDirection: 'row',
+                            }}>{formatTime(pomodoroInterval)}</Text>
+                    <View style={{
+                        flexDirection: 'row',
                         }}>
-                            <View style={{
-                                borderBottomColor: themeColors.tint,
-                                borderBottomWidth: 3,
-                                width: getWidthInPixels(),
-                                maxWidth: '100%'
+                        <View style={{
+                            borderBottomColor: themeColors.tint,
+                            borderBottomWidth: 3,
+                            width: getWidthInPixels(),
+                            maxWidth: '100%'
                             }}></View>
-                            <View style={{
-                                borderBottomColor: themeColors.subtleText,
-                                borderBottomWidth: 3,
-                                width: getAntiWidthInPixels(),
-                                maxWidth: '100%'
+                        <View style={{
+                            borderBottomColor: themeColors.subtleText,
+                            borderBottomWidth: 3,
+                            width: getAntiWidthInPixels(),
+                            maxWidth: '100%'
                             }}></View>
-                        </View>
+                    </View>
                 </View>
             ) : (
                 <View style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <Text style={{
-                        fontSize: 60,
-                        color: themeColors.text
-                    }}>{formatTime(pomodoroStartingInterval)}</Text>
+                    { editBreak ? (
+                        <Text style={{
+                            fontSize: 60,
+                            color: themeColors.text
+                        }}>{formatTime(breakStartingInterval)}</Text>
+                    ) : (
+                        <Text style={{
+                            fontSize: 60,
+                            color: themeColors.text
+                        }}>{formatTime(pomodoroStartingInterval)}</Text>
+                    )}
                     <View style={{
                         flexDirection: 'row'
                     }}>
@@ -158,15 +216,55 @@ const PomodoroTimer = () => {
                     </View>
                 </View>
             )}
-            <View
-                style={{
-                    marginTop: 12,
-                    height: 30,
-                    backgroundColor: themeColors.background,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                }}>
+
+            {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
+            { editBreak ? (
+                <View
+                    style={{
+                        marginTop: 12,
+                        height: 30,
+                        backgroundColor: themeColors.background,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        }}>
+                    <Pressable onPress={() => handleDecrement()}
+                        style={{
+                            marginRight: 5,
+                            backgroundColor: themeColors.background,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <Feather name='arrow-down-circle'
+                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                            size={24}/>
+                    </Pressable>
+                    <Text style={{
+                            fontSize: 14,
+                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                        }}>Increment 1 min</Text>
+                    <Pressable onPress={() => handleIncrement()}
+                        style={{
+                            marginLeft: 5,
+                            backgroundColor: themeColors.background,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <Feather name='arrow-up-circle'
+                            color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                            size={24}/>
+                    </Pressable>
+                </View>
+            ) : (
+                <View
+                    style={{
+                        marginTop: 12,
+                        height: 30,
+                        backgroundColor: themeColors.background,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        }}>
                     <Pressable onPress={() => handleDecrement()}
                         style={{
                             marginRight: 5,
@@ -193,14 +291,40 @@ const PomodoroTimer = () => {
                             color={stopped ? themeColors.text : themeColors.tabIconDefault}
                             size={24}/>
                     </Pressable>
-            </View>
-            <View
+                </View>
+            )}
+
+            {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
+            { editBreak ? (
+                <View
                 style={{
                     height: 30,
                     backgroundColor: themeColors.background,
                     justifyContent: 'center',
                     alignItems: 'center',
-                }}>
+                    }}>
+                <Pressable onPress={() => handleDefaultReset()}
+                    style={{
+                        marginTop: 12,
+                        height: 20,
+                        backgroundColor: themeColors.background,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <Text style={{
+                        fontSize: 14,
+                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                    }}>Reset to 5 mins</Text>
+                </Pressable>
+            </View>
+            ) : (
+                <View
+                    style={{
+                        height: 30,
+                        backgroundColor: themeColors.background,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        }}>
                     <Pressable onPress={() => handleDefaultReset()}
                         style={{
                             marginTop: 12,
@@ -214,7 +338,10 @@ const PomodoroTimer = () => {
                             color: stopped ? themeColors.text : themeColors.tabIconDefault,
                         }}>Reset to 25 mins</Text>
                     </Pressable>
-            </View>
+                </View>
+            )}
+
+            {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
