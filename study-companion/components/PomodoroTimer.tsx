@@ -28,7 +28,7 @@ const PomodoroTimer = () => {
         } else {
             setTimer(breakInterval);
         }
-    }, [studying])
+    }, [studying, pomodoroInterval, breakInterval])
 
     //Handle states when running/paused/stopped
     useEffect(() => {
@@ -49,13 +49,6 @@ const PomodoroTimer = () => {
                 });
             }, 1000);
         }
-        if (stopped) {
-            if (studying) {
-                setPomodoroInterval(1500);
-            } else {
-                setBreakInterval(300);
-            }
-        }
 
         //Cleanup interval on unmount or when running/working/paused changes
         return () => {
@@ -68,9 +61,6 @@ const PomodoroTimer = () => {
 
     //Update intervals when they change
     useEffect(() => {
-        console.log("Pomodoro updated to: ", pomodoroInterval);
-        console.log("Break updated to: ", breakInterval);
-
         //Update timer to match intervals
         if (stopped) {
             if (studying) {
@@ -83,7 +73,7 @@ const PomodoroTimer = () => {
 
     //Update timer when it changes
     useEffect(() => {
-        console.log("Timer updated to: ", timer);
+
     }, [timer])
 
     const startPomodoro = () => {
@@ -212,7 +202,9 @@ const PomodoroTimer = () => {
                 <View style={{
                     flexDirection: 'row'
                     }}>
-                    <Pressable onPress={() => setStudying(true)}
+                    <Pressable onPress={() => {
+                            setStudying(true);
+                        }}
                         style={{
                             marginRight: 5,
                             backgroundColor: (studying ? themeColors.backgroundSelected : themeColors.background),
@@ -221,7 +213,9 @@ const PomodoroTimer = () => {
                             }}>
                         <Text>Study</Text>
                     </Pressable>
-                    <Pressable onPress={() => setStudying(false)}
+                    <Pressable onPress={() => {
+                            setStudying(false);
+                        }}
                         style={{
                             marginRight: 5,
                             backgroundColor: (studying ? themeColors.background : themeColors.backgroundSelected),
