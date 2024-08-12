@@ -68,6 +68,8 @@ export default function Pomodoro() {
         <View style={{
           width: '75%',
           alignItems: 'center',
+          //borderWidth: 2,
+          //borderColor: 'red'
         }}>
           { pomodoro ? (
             <PomodoroTimer />

@@ -19,6 +19,9 @@ const PomodoroTimer = () => {
     const [paused, setPaused] = useState(false);
     const [stopped, setStopped] = useState(true);
     const [studying, setStudying] = useState(true);
+
+    const [totalTime, setTotalTime] = useState(0);
+
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     //Handle change to breaking and studying
@@ -47,6 +50,13 @@ const PomodoroTimer = () => {
                         return 0;
                     }
                 });
+
+                //Only add time to total session time if not on break
+                if (studying) {
+                    setTotalTime((prevInterval) => {
+                        return prevInterval + 1;
+                    });
+                }
             }, 1000);
         }
 
@@ -72,9 +82,9 @@ const PomodoroTimer = () => {
     }, [pomodoroInterval, breakInterval])
 
     //Update timer when it changes
-    useEffect(() => {
+    /*useEffect(() => {
 
-    }, [timer])
+    }, [timer])*/
 
     const startPomodoro = () => {
         if (stopped || paused) {
@@ -109,6 +119,7 @@ const PomodoroTimer = () => {
             } else {
                 setTimer(breakInterval);
             }
+            setTotalTime(0);
         }
     };
 
@@ -256,79 +267,87 @@ const PomodoroTimer = () => {
                 </View>
             </View>
 
-            {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
-            <View
-                style={{
-                    marginTop: 12,
-                    height: 30,
-                    backgroundColor: themeColors.background,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    }}>
-                <Pressable onPress={() => handleDecrement()}
-                    style={{
-                        marginRight: 5,
-                        backgroundColor: themeColors.background,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    <Feather name='arrow-down-circle'
-                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                        size={24}/>
-                </Pressable>
-                { studying ? (
-                    <Text style={{
-                        fontSize: 14,
-                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                    }}>Increment 5 mins</Text>
-                ) : (
-                    <Text style={{
-                        fontSize: 14,
-                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                    }}>Increment 1 min</Text>
-                )}
-                <Pressable onPress={() => handleIncrement()}
-                    style={{
-                        marginLeft: 5,
-                        backgroundColor: themeColors.background,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    <Feather name='arrow-up-circle'
-                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                        size={24}/>
-                </Pressable>
-            </View>
+            <View>
+                {stopped ? (
+                    <View>
+                        {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
+                        <View
+                            style={{
+                                marginTop: 12,
+                                height: 30,
+                                backgroundColor: themeColors.background,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                }}>
+                            <Pressable onPress={() => handleDecrement()}
+                                style={{
+                                    marginRight: 5,
+                                    backgroundColor: themeColors.background,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <Feather name='arrow-down-circle'
+                                    color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                                    size={24}/>
+                            </Pressable>
+                            { studying ? (
+                                <Text style={{
+                                    fontSize: 14,
+                                    color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                }}>Increment 5 mins</Text>
+                            ) : (
+                                <Text style={{
+                                    fontSize: 14,
+                                    color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                }}>Increment 1 min</Text>
+                            )}
+                            <Pressable onPress={() => handleIncrement()}
+                                style={{
+                                    marginLeft: 5,
+                                    backgroundColor: themeColors.background,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <Feather name='arrow-up-circle'
+                                    color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                                    size={24}/>
+                            </Pressable>
+                        </View>
 
-            {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
-            <View
-                style={{
-                    height: 30,
-                    backgroundColor: themeColors.background,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    }}>
-                <Pressable onPress={() => handleDefaultReset()}
-                    style={{
-                        marginTop: 12,
-                        height: 20,
-                        backgroundColor: themeColors.background,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    { studying ? (
-                        <Text style={{
-                            fontSize: 14,
-                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                        }}>Reset to 25 mins</Text>
-                    ) : (
-                        <Text style={{
-                            fontSize: 14,
-                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                        }}>Reset to 5 mins</Text>
-                    )}
-                </Pressable>
+                        {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
+                        <View
+                            style={{
+                                height: 30,
+                                backgroundColor: themeColors.background,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                }}>
+                            <Pressable onPress={() => handleDefaultReset()}
+                                style={{
+                                    marginTop: 12,
+                                    height: 20,
+                                    backgroundColor: themeColors.background,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                { studying ? (
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                    }}>Reset to 25 mins</Text>
+                                ) : (
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                    }}>Reset to 5 mins</Text>
+                                )}
+                            </Pressable>
+                        </View>
+                    </View>
+                ) : (
+                    <View></View>
+                )}
             </View>
 
             {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
@@ -398,7 +417,21 @@ const PomodoroTimer = () => {
                     <View></View>
                 )}
             </View>
-
+            
+            {/* RENDER TOTAL TIME OUTPUT */}
+            <View style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                marginTop: 40,
+            }}>
+                { stopped ? (
+                    <View></View>
+                ) : (
+                    <Text>Total session time: {formatTime(totalTime)}</Text>
+                )}
+            </View>
         </View>
     )
 }
