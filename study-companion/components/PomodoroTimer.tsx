@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 
 //Color schemes
@@ -81,10 +81,26 @@ const PomodoroTimer = () => {
         }
     }, [pomodoroInterval, breakInterval])
 
-    //Update timer when it changes
-    /*useEffect(() => {
-
-    }, [timer])*/
+    const showAlert = () =>
+        Alert.alert(
+          'Are you sure you want to reset the timer?',
+          'Your total session time will reset unless you finish the current study time.',
+          [
+            {
+              text: 'Keep studying!',
+              onPress: () => Alert.alert('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {
+                text: `I'm sure, cancel.`,
+                onPress: () => Alert.alert('Accept Pressed'),
+                style: 'default',
+            },
+          ],
+          {
+            cancelable: false,
+          },
+        );
 
     const startPomodoro = () => {
         if (stopped || paused) {
@@ -378,7 +394,7 @@ const PomodoroTimer = () => {
                     <View></View>
                 )}
                 { paused ? (
-                    <Pressable onPress={() => resetPomodoro()}
+                    <Pressable onPress={showAlert}
                         style={{
                             flex: 1,
                             height: 40,
