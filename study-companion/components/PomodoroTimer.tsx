@@ -4,7 +4,19 @@ import React, { useEffect, useRef, useState } from 'react'
 //Color schemes
 import { useColorScheme } from './useColorScheme';
 import Colors from '../constants/Colors';
+
 import { Feather } from '@expo/vector-icons';
+
+//Firestore refs
+import { addDoc, collection, Timestamp } from 'firebase/firestore';
+import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebase-config';
+import { getUserDocID } from '../firebase/databaseCalls';
+
+interface sessionData {
+    time: number,
+    blocks: number,
+    timestamp: Timestamp
+}
 
 const PomodoroTimer = () => {
     //Color schemes
@@ -90,25 +102,53 @@ const PomodoroTimer = () => {
         }
     }, [pomodoroInterval, breakInterval])
 
-    const showAlert = () =>
+    //Handle logic for saving stats to database
+    const logSessionStats = async (totalTime: number, totalBlocks: number) => {
+        //Write data to user/{uid}/sessions
+        try {
+            const sessionData: sessionData = {
+                time: totalTime,
+                blocks: totalBlocks,
+                timestamp: Timestamp.now()
+            };
+
+            console.log(FIREBASE_AUTH.currentUser);
+
+            //Add document with userDoc reference
+            const userDocId = await getUserDocID();
+            const docRef = await addDoc(collection(FIRESTORE_DB, `users/${userDocId}/sessions`), sessionData);
+
+            console.log("Doc: ", docRef);
+
+            //Reset total time
+            setCompletedBlocks(0);
+            setTotalTime(0);
+        } catch (error) {
+            console.error("Error writing session data: ", error);
+        }
+    }
+
+    //Custom alert called by reset button
+    const showAlert = () => {
         Alert.alert(
-          'Are you sure you want to reset the timer?',
-          'Your total session time will reset unless you finish the current Pomodoro block.',
-          [
+            'Are you sure you want to reset the timer?',
+            'Your total session time will reset unless you finish the current Pomodoro block.',
+            [
+                {
+                text: 'Keep studying!',
+                style: 'cancel',
+                },
+                {
+                    text: `I'm sure, cancel.`,
+                    onPress: () => resetPomodoro(),
+                    style: 'default',
+                },
+            ],
             {
-              text: 'Keep studying!',
-              style: 'cancel',
+                cancelable: false,
             },
-            {
-                text: `I'm sure, cancel.`,
-                onPress: () => resetPomodoro(),
-                style: 'default',
-            },
-          ],
-          {
-            cancelable: false,
-          },
         );
+    }
 
     const startPomodoro = () => {
         if (stopped || paused) {
@@ -208,220 +248,245 @@ const PomodoroTimer = () => {
     }, [timer]);
 
     return (
-        <View onLayout={handleLayout} style={{
-            width: '100%',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            }}>
+        <View>
+            <View onLayout={handleLayout} style={{
+                    width: '100%',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
 
-            {/* RENDER TIMER NAME DEPENDING ON STATE */}
-            { running || paused ? (
-                <View>
-                    { studying ? (
-                        <Text style={{
-                            fontSize: 48
-                        }}>Study</Text>
-                    ) : (
-                        <Text style={{
-                            fontSize: 48
-                        }}>Break</Text>
-                    )}
-                </View>
-            ) : (
-                <View></View>
-            )}
-
-            {/* RENDER STUDY/BREAK TOGGLE */}
-            { stopped ? (
-                <View style={{
-                    flexDirection: 'row'
-                    }}>
-                    <Pressable onPress={() => {
-                            setStudying(true);
-                        }}
-                        style={{
-                            marginRight: 5,
-                            backgroundColor: (studying ? themeColors.backgroundSelected : themeColors.background),
-                            padding: 5,
-                            borderRadius: 8
-                            }}>
-                        <Text>Study</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {
-                            setStudying(false);
-                        }}
-                        style={{
-                            marginRight: 5,
-                            backgroundColor: (studying ? themeColors.background : themeColors.backgroundSelected),
-                            padding: 5,
-                            borderRadius: 8
-                            }}>
-                        <Text>Break</Text>
-                    </Pressable> 
-                </View>
-            ) : (
-                <View></View>
-            )}
-
-            {/* RENDER TIMER AND PROGRESS BAR */}
-            <View style={{
-                justifyContent: 'center',
-                alignItems: 'center',
+                    borderColor: themeColors.borderSubtle,
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    padding: 10
                 }}>
-                    <Text style={{
-                        fontSize: 60,
-                        color: themeColors.text,
-                        }}>{formatTime(timer)}</Text>
-                <View style={{
-                    flexDirection: 'row',
-                    }}>
-                    <View style={{
-                        borderBottomColor: themeColors.tint,
-                        borderBottomWidth: 3,
-                        width: getWidthInPixels(),
-                        maxWidth: '100%'
-                        }}></View>
-                    <View style={{
-                        borderBottomColor: themeColors.subtleText,
-                        borderBottomWidth: 3,
-                        width: getAntiWidthInPixels(),
-                        maxWidth: '100%'
-                        }}></View>
-                </View>
-            </View>
 
-            <View>
-                {stopped ? (
+                {/* RENDER TIMER NAME DEPENDING ON STATE */}
+                { running || paused ? (
                     <View>
-                        {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
-                        <View
-                            style={{
-                                marginTop: 12,
-                                height: 30,
-                                backgroundColor: themeColors.background,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                flexDirection: 'row',
-                                }}>
-                            <Pressable onPress={() => handleDecrement()}
-                                style={{
-                                    marginRight: 5,
-                                    backgroundColor: themeColors.background,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Feather name='arrow-down-circle'
-                                    color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                                    size={24}/>
-                            </Pressable>
-                            { studying ? (
-                                <Text style={{
-                                    fontSize: 14,
-                                    color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                }}>Increment 5 mins</Text>
-                            ) : (
-                                <Text style={{
-                                    fontSize: 14,
-                                    color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                }}>Increment 1 min</Text>
-                            )}
-                            <Pressable onPress={() => handleIncrement()}
-                                style={{
-                                    marginLeft: 5,
-                                    backgroundColor: themeColors.background,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Feather name='arrow-up-circle'
-                                    color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                                    size={24}/>
-                            </Pressable>
-                        </View>
-
-                        {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
-                        <View
-                            style={{
-                                height: 30,
-                                backgroundColor: themeColors.background,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                }}>
-                            <Pressable onPress={() => handleDefaultReset()}
-                                style={{
-                                    marginTop: 12,
-                                    height: 20,
-                                    backgroundColor: themeColors.background,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                { studying ? (
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                    }}>Reset to 25 mins</Text>
-                                ) : (
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                    }}>Reset to 5 mins</Text>
-                                )}
-                            </Pressable>
-                        </View>
+                        { studying ? (
+                            <Text style={{
+                                fontSize: 48
+                            }}>Study</Text>
+                        ) : (
+                            <Text style={{
+                                fontSize: 48
+                            }}>Break</Text>
+                        )}
                     </View>
                 ) : (
                     <View></View>
                 )}
-            </View>
 
-            {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                width: '100%',
-                marginTop: 20
-            }}>
-                { stopped || paused ? (
-                    <Pressable onPress={() => startPomodoro()}
-                        style={{
-                            flex: 1,
-                            height: 40,
-                            borderRadius: 8,
-                            paddingHorizontal: 10,
-                            backgroundColor: themeColors.tint,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginRight: paused ? 12 : 0
+                {/* RENDER STUDY/BREAK TOGGLE */}
+                { stopped ? (
+                    <View style={{
+                        flexDirection: 'row'
                         }}>
-                        <Text style={{
-                            fontSize: 14,
-                            color: themeColors.text,
-                        }}>Start</Text>
-                    </Pressable>
+                        <Pressable onPress={() => {
+                                setStudying(true);
+                            }}
+                            style={{
+                                marginRight: 5,
+                                backgroundColor: (studying ? themeColors.backgroundSelected : themeColors.background),
+                                padding: 5,
+                                borderRadius: 8
+                                }}>
+                            <Text>Study</Text>
+                        </Pressable>
+                        <Pressable onPress={() => {
+                                setStudying(false);
+                            }}
+                            style={{
+                                marginRight: 5,
+                                backgroundColor: (studying ? themeColors.background : themeColors.backgroundSelected),
+                                padding: 5,
+                                borderRadius: 8
+                                }}>
+                            <Text>Break</Text>
+                        </Pressable> 
+                    </View>
                 ) : (
                     <View></View>
                 )}
-                { paused ? (
-                    <Pressable onPress={showAlert}
-                        style={{
-                            flex: 1,
-                            height: 40,
-                            borderRadius: 8,
-                            paddingHorizontal: 10,
-                            backgroundColor: themeColors.tint,
-                            justifyContent: 'center',
-                            alignItems: 'center',
+
+                {/* RENDER TIMER AND PROGRESS BAR */}
+                <View style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     }}>
                         <Text style={{
-                            fontSize: 14,
+                            fontSize: 60,
                             color: themeColors.text,
-                        }}>Reset</Text>   
-                    </Pressable>
-                ) : (
-                    <View></View>
-                )}
-                { running ? (
-                    <Pressable onPress={() => pausePomodoro()}
+                            }}>{formatTime(timer)}</Text>
+                    <View style={{
+                        flexDirection: 'row',
+                        }}>
+                        <View style={{
+                            borderBottomColor: themeColors.tint,
+                            borderBottomWidth: 3,
+                            width: getWidthInPixels(),
+                            maxWidth: '100%'
+                            }}></View>
+                        <View style={{
+                            borderBottomColor: themeColors.subtleText,
+                            borderBottomWidth: 3,
+                            width: getAntiWidthInPixels(),
+                            maxWidth: '100%'
+                            }}></View>
+                    </View>
+                </View>
+
+                <View>
+                    {stopped ? (
+                        <View>
+                            {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
+                            <View
+                                style={{
+                                    marginTop: 12,
+                                    height: 30,
+                                    backgroundColor: themeColors.background,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    }}>
+                                <Pressable onPress={() => handleDecrement()}
+                                    style={{
+                                        marginRight: 5,
+                                        backgroundColor: themeColors.background,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Feather name='arrow-down-circle'
+                                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                                        size={24}/>
+                                </Pressable>
+                                { studying ? (
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                    }}>Increment 5 mins</Text>
+                                ) : (
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                    }}>Increment 1 min</Text>
+                                )}
+                                <Pressable onPress={() => handleIncrement()}
+                                    style={{
+                                        marginLeft: 5,
+                                        backgroundColor: themeColors.background,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Feather name='arrow-up-circle'
+                                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
+                                        size={24}/>
+                                </Pressable>
+                            </View>
+
+                            {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
+                            <View
+                                style={{
+                                    height: 30,
+                                    backgroundColor: themeColors.background,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    }}>
+                                <Pressable onPress={() => handleDefaultReset()}
+                                    style={{
+                                        marginTop: 12,
+                                        height: 20,
+                                        backgroundColor: themeColors.background,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    { studying ? (
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                        }}>Reset to 25 mins</Text>
+                                    ) : (
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
+                                        }}>Reset to 5 mins</Text>
+                                    )}
+                                </Pressable>
+                            </View>
+                        </View>
+                    ) : (
+                        <View></View>
+                    )}
+                </View>
+
+                {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                    marginTop: 20
+                }}>
+                    { stopped || paused ? (
+                        <Pressable onPress={() => startPomodoro()}
+                            style={{
+                                flex: 1,
+                                height: 40,
+                                borderRadius: 8,
+                                paddingHorizontal: 10,
+                                backgroundColor: themeColors.tint,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginRight: paused ? 12 : 0
+                            }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Start</Text>
+                        </Pressable>
+                    ) : (
+                        <View></View>
+                    )}
+                    { paused ? (
+                        <Pressable onPress={showAlert}
+                            style={{
+                                flex: 1,
+                                height: 40,
+                                borderRadius: 8,
+                                paddingHorizontal: 10,
+                                backgroundColor: themeColors.tint,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                        }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Reset</Text>   
+                        </Pressable>
+                    ) : (
+                        <View></View>
+                    )}
+                    { running ? (
+                        <Pressable onPress={() => pausePomodoro()}
+                            style={{
+                                flex: 1,
+                                width: '100%',
+                                height: 40,
+                                borderRadius: 8,
+                                paddingHorizontal: 10,
+                                backgroundColor: themeColors.tint,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Pause</Text> 
+                        </Pressable>
+                    ) : (
+                        <View></View>
+                    )}
+                    <Pressable onPress={() => setTimer(5)}
                         style={{
                             flex: 1,
                             width: '100%',
@@ -435,31 +500,50 @@ const PomodoroTimer = () => {
                         <Text style={{
                             fontSize: 14,
                             color: themeColors.text,
-                        }}>Pause</Text> 
+                        }}>TEST BUTTON</Text> 
                     </Pressable>
-                ) : (
-                    <View></View>
-                )}
+                </View>
             </View>
-            
             {/* RENDER TOTAL TIME OUTPUT */}
             <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                marginTop: 40,
-            }}>
-                <Text>Total study time this session: {formatTime(totalTime)}</Text>
-            </View>
-            <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                marginTop: 5,
-            }}>
-                <Text>Study blocks completed this session: {completedBlocks}</Text>
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+            
+                    marginTop: 40,
+                    borderColor: themeColors.borderSubtle,
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    padding: 10
+                }}>
+                <View style={{}}>
+                    <Text>Total study time this session: {formatTime(totalTime)}</Text>
+                </View>
+                <View style={{
+                    marginTop: 5,
+                }}>
+                    <Text>Study blocks completed this session: {completedBlocks}</Text>
+                </View>
+                <View style={{
+                    marginTop: 5,
+                    width: '100%',
+                    height: 40,
+                }}>
+                    <Pressable onPress={() => logSessionStats(totalTime, completedBlocks)}
+                        style={{
+                            flex: 1,
+                            borderRadius: 8,
+                            paddingHorizontal: 10,
+                            backgroundColor: themeColors.tint,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: themeColors.text,
+                        }}>Log Session Stats</Text> 
+                    </Pressable>
+                </View>
             </View>
         </View>
     )
