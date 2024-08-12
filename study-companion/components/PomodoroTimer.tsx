@@ -20,7 +20,9 @@ const PomodoroTimer = () => {
     const [stopped, setStopped] = useState(true);
     const [studying, setStudying] = useState(true);
 
+    //Metrics for session
     const [totalTime, setTotalTime] = useState(0);
+    const [completedBlocks, setCompletedBlocks] = useState(0);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -46,6 +48,13 @@ const PomodoroTimer = () => {
                             clearInterval(timerRef.current);
                             timerRef.current = null;
                         }
+                        //Update study blocks completed
+                        if (studying) {
+                            setCompletedBlocks((prevInterval) => {
+                                return prevInterval + 1;
+                            })
+                        }
+                        //Update studying status to reflect study -> break or vice versa
                         setStudying((prevStudying) => !prevStudying);
                         return 0;
                     }
@@ -84,16 +93,15 @@ const PomodoroTimer = () => {
     const showAlert = () =>
         Alert.alert(
           'Are you sure you want to reset the timer?',
-          'Your total session time will reset unless you finish the current study time.',
+          'Your total session time will reset unless you finish the current Pomodoro block.',
           [
             {
               text: 'Keep studying!',
-              onPress: () => Alert.alert('Cancel Pressed'),
               style: 'cancel',
             },
             {
                 text: `I'm sure, cancel.`,
-                onPress: () => Alert.alert('Accept Pressed'),
+                onPress: () => resetPomodoro(),
                 style: 'default',
             },
           ],
@@ -442,11 +450,16 @@ const PomodoroTimer = () => {
                 width: '100%',
                 marginTop: 40,
             }}>
-                { stopped ? (
-                    <View></View>
-                ) : (
-                    <Text>Total session time: {formatTime(totalTime)}</Text>
-                )}
+                <Text>Total study time this session: {formatTime(totalTime)}</Text>
+            </View>
+            <View style={{
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                marginTop: 5,
+            }}>
+                <Text>Study blocks completed this session: {completedBlocks}</Text>
             </View>
         </View>
     )
