@@ -19,6 +19,10 @@ export default {
         subtleBackground: "#e6e6e6",
         backgroundSelected: "#cccccc",
         borderSubtle: "#cccccc",
+
+        //Chart colors
+        backgroundGradientFrom: "#b3d1ff",
+        backgroundGrafientTo: "#e6f0ff",
     },
     dark: {
         primary: '#1a1a1a',
@@ -37,5 +41,9 @@ export default {
         subtleBackground: "#e6e6e6",
         backgroundSelected: "#cccccc",
         borderSubtle: "#cccccc",
+
+        //Chart colors
+        backgroundGradientFrom: "#b3d1ff",
+        backgroundGrafientTo: "#e6f0ff",
     },
 };

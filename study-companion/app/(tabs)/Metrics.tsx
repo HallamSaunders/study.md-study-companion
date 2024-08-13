@@ -44,10 +44,10 @@ export default function Metrics() {
         alignItems: 'center',
       }}>
         <View style={{
-          width: '75%',
+          width: '80%',
           alignItems: 'center',
-          //borderWidth: 2,
-          //borderColor: 'red'
+          //borderColor: 'red',
+          //borderWidth: 2
         }}>
           <MetricsBarChart />
         </View>

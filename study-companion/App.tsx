@@ -76,7 +76,6 @@ function InsideTabLayout({ navigation }: RouterProps) {
       username = await getUsernameByUID(currentUser.uid) || 'Profile';
     }
   
-    //console.log('Username:', username);
     return username;
   };
 
