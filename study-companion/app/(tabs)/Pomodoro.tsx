@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StopwatchTimer from '../../components/StopwatchTimer';
 import PomodoroTimer from '../../components/PomodoroTimer';
 import { reload } from 'firebase/auth';
+import RegularTimer from '../../components/RegularTimer';
 
 export default function Pomodoro() {
   const [pomodoro, setPomodoro] = useState(true);
@@ -74,7 +75,7 @@ export default function Pomodoro() {
           { pomodoro ? (
             <PomodoroTimer />
           ) : (
-            <StopwatchTimer />
+            <RegularTimer />
           )}
         </View>
       </View>

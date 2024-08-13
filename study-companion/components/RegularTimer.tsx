@@ -5,8 +5,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useColorScheme } from './useColorScheme';
 import Colors from '../constants/Colors';
 
-import { Feather } from '@expo/vector-icons';
-
 //Firestore refs
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebase-config';
@@ -19,68 +17,35 @@ interface sessionData {
     type: string
 }
 
-const PomodoroTimer = () => {
+const RegularTimer = () => {
     //Color schemes
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
     
     //Timers
-    const [pomodoroInterval, setPomodoroInterval] = useState(1500);
-    const [breakInterval, setBreakInterval] = useState(300);
-    const [timer, setTimer] = useState(1500);
+    const [timer, setTimer] = useState(0);
     const [running, setRunning] = useState(false);
     const [paused, setPaused] = useState(false);
     const [stopped, setStopped] = useState(true);
-    const [studying, setStudying] = useState(true);
 
     //Metrics for session
     const [totalTime, setTotalTime] = useState(0);
-    const [completedBlocks, setCompletedBlocks] = useState(0);
 
     const [loading, setLoading] = useState(false);
 
     const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-    //Handle change to breaking and studying
-    useEffect(() => {
-        if (studying) {
-            setTimer(pomodoroInterval);
-        } else {
-            setTimer(breakInterval);
-        }
-    }, [studying, pomodoroInterval, breakInterval])
 
     //Handle states when running/paused/stopped
     useEffect(() => {
         if (running && !paused) {
             timerRef.current = setInterval(() => {
                 setTimer((prevInterval) => {
-                    if (prevInterval > 0) {
-                        return prevInterval - 1;
-                    } else {
-                        //Handle clearing interval if it hits 0
-                        if (timerRef.current) {
-                            clearInterval(timerRef.current);
-                            timerRef.current = null;
-                        }
-                        //Update study blocks completed
-                        if (studying) {
-                            setCompletedBlocks((prevInterval) => {
-                                return prevInterval + 1;
-                            })
-                        }
-                        //Update studying status to reflect study -> break or vice versa
-                        setStudying((prevStudying) => !prevStudying);
-                        return 0;
-                    }
+                    return prevInterval + 1;
                 });
 
-                //Only add time to total session time if not on break
-                if (studying) {
-                    setTotalTime((prevInterval) => {
-                        return prevInterval + 1;
-                    });
-                }
+                setTotalTime((prevInterval) => {
+                    return prevInterval + 1;
+                });
             }, 1000);
         }
 
@@ -91,22 +56,10 @@ const PomodoroTimer = () => {
                 timerRef.current = null; //Reset after clearing
             }
         };
-    }, [running, paused, stopped, studying])
-
-    //Update intervals when they change
-    useEffect(() => {
-        //Update timer to match intervals
-        if (stopped) {
-            if (studying) {
-                setTimer(pomodoroInterval);
-            } else {
-                setTimer(breakInterval);
-            }
-        }
-    }, [pomodoroInterval, breakInterval])
+    }, [running, paused, stopped])
 
     //Handle logic for saving stats to database
-    const logSessionStats = async (totalTime: number, totalBlocks: number) => {
+    const logSessionStats = async (totalTime: number) => {
         if (!(totalTime === 0)) {
             
             setLoading(true);
@@ -114,9 +67,9 @@ const PomodoroTimer = () => {
             try {
                 const sessionData: sessionData = {
                     time: totalTime,
-                    blocks: totalBlocks,
+                    blocks: 0,
                     timestamp: Timestamp.now(),
-                    type: 'pomodoro'
+                    type: 'timer'
                 };
 
                 console.log(FIREBASE_AUTH.currentUser);
@@ -128,8 +81,8 @@ const PomodoroTimer = () => {
                 console.log("Doc: ", docRef);
 
                 //Reset total time
-                setCompletedBlocks(0);
                 setTotalTime(0);
+                resetStopwatch();
                 setLoading(false);
             } catch (error) {
                 console.error("Error writing session data: ", error);
@@ -149,7 +102,7 @@ const PomodoroTimer = () => {
                 },
                 {
                     text: `I'm sure, cancel.`,
-                    onPress: () => resetPomodoro(),
+                    onPress: () => resetStopwatch(),
                     style: 'default',
                 },
             ],
@@ -159,22 +112,15 @@ const PomodoroTimer = () => {
         );
     }
 
-    const startPomodoro = () => {
+    const startStopwatch = () => {
         if (stopped || paused) {
             setRunning(true);
             setPaused(false);
             setStopped(false);
-            if (stopped) {
-                if (studying) {
-                    setTimer(pomodoroInterval);
-                } else {
-                    setTimer(breakInterval);
-                }
-            }
         }
     };
 
-    const pausePomodoro = () => {
+    const pauseStopwatch = () => {
         if (running) {
             setRunning(false);
             setPaused(true);
@@ -182,43 +128,16 @@ const PomodoroTimer = () => {
         }
     };
     
-    const resetPomodoro = () => {
+    const resetStopwatch = () => {
         if (paused) {
             setRunning(false);
             setPaused(false);
             setStopped(true);
-            if (studying) {
-                setTimer(pomodoroInterval);
-            } else {
-                setTimer(breakInterval);
-            }
+
+            setTimer(0);
             setTotalTime(0);
         }
     };
-
-    const handleIncrement = () => {
-        if (studying) {
-            setPomodoroInterval(pomodoroInterval + 300);
-        } else {
-            setBreakInterval(breakInterval + 60);
-        }
-    }
-
-    const handleDecrement = () => {
-        if (studying) {
-            if (pomodoroInterval >= 600) setPomodoroInterval(pomodoroInterval - 300);
-        } else {
-            if (breakInterval >= 120) setBreakInterval(breakInterval - 60);
-        }
-    }
-
-    const handleDefaultReset = () => {
-        if (studying) {
-            setPomodoroInterval(1500);
-        } else {
-            setBreakInterval(300);
-        }
-    }
 
     const formatTime = (time: number) => {
         const getSeconds = `0${time % 60}`.slice(-2);
@@ -233,10 +152,8 @@ const PomodoroTimer = () => {
     const [percentFilled, setPercentageFilled] = useState(0);
   
     const calculatePercentageFilled = () => {
-        if (pomodoroInterval > 0 && breakInterval > 0) {
-            const percentFilled = (studying) ? (timer / pomodoroInterval) : (timer / breakInterval);
-            setPercentageFilled(percentFilled);
-        }
+        const percentFilled = ((timer % 60) / 60);
+        setPercentageFilled(percentFilled);
     };
   
     const getWidthInPixels = () => {
@@ -258,7 +175,7 @@ const PomodoroTimer = () => {
 
     return (
         <View>
-            <View onLayout={handleLayout} style={{
+            <View style={{
                     width: '100%',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -270,57 +187,8 @@ const PomodoroTimer = () => {
                     padding: 10
                 }}>
 
-                {/* RENDER TIMER NAME DEPENDING ON STATE */}
-                { running || paused ? (
-                    <View>
-                        { studying ? (
-                            <Text style={{
-                                fontSize: 48
-                            }}>Study</Text>
-                        ) : (
-                            <Text style={{
-                                fontSize: 48
-                            }}>Break</Text>
-                        )}
-                    </View>
-                ) : (
-                    <View></View>
-                )}
-
-                {/* RENDER STUDY/BREAK TOGGLE */}
-                { stopped ? (
-                    <View style={{
-                        flexDirection: 'row'
-                        }}>
-                        <Pressable onPress={() => {
-                                setStudying(true);
-                            }}
-                            style={{
-                                marginRight: 5,
-                                backgroundColor: (studying ? themeColors.backgroundSelected : themeColors.background),
-                                padding: 5,
-                                borderRadius: 8
-                                }}>
-                            <Text>Study</Text>
-                        </Pressable>
-                        <Pressable onPress={() => {
-                                setStudying(false);
-                            }}
-                            style={{
-                                marginRight: 5,
-                                backgroundColor: (studying ? themeColors.background : themeColors.backgroundSelected),
-                                padding: 5,
-                                borderRadius: 8
-                                }}>
-                            <Text>Break</Text>
-                        </Pressable> 
-                    </View>
-                ) : (
-                    <View></View>
-                )}
-
                 {/* RENDER TIMER AND PROGRESS BAR */}
-                <View style={{
+                <View onLayout={handleLayout} style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     }}>
@@ -346,89 +214,6 @@ const PomodoroTimer = () => {
                     </View>
                 </View>
 
-                <View>
-                    {stopped ? (
-                        <View>
-                            {/* RENDER INCREMENT NUMBERS DEPENDING ON BREAK OR NOT */}
-                            <View
-                                style={{
-                                    marginTop: 12,
-                                    height: 30,
-                                    backgroundColor: themeColors.background,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    flexDirection: 'row',
-                                    }}>
-                                <Pressable onPress={() => handleDecrement()}
-                                    style={{
-                                        marginRight: 5,
-                                        backgroundColor: themeColors.background,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Feather name='arrow-down-circle'
-                                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                                        size={24}/>
-                                </Pressable>
-                                { studying ? (
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                    }}>Increment 5 mins</Text>
-                                ) : (
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                    }}>Increment 1 min</Text>
-                                )}
-                                <Pressable onPress={() => handleIncrement()}
-                                    style={{
-                                        marginLeft: 5,
-                                        backgroundColor: themeColors.background,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Feather name='arrow-up-circle'
-                                        color={stopped ? themeColors.text : themeColors.tabIconDefault}
-                                        size={24}/>
-                                </Pressable>
-                            </View>
-
-                            {/* RENDER RESET NUMBERS DEPENDING ON BREAK OR NOT */}
-                            <View
-                                style={{
-                                    height: 30,
-                                    backgroundColor: themeColors.background,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    }}>
-                                <Pressable onPress={() => handleDefaultReset()}
-                                    style={{
-                                        marginTop: 12,
-                                        height: 20,
-                                        backgroundColor: themeColors.background,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    { studying ? (
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                        }}>Reset to 25 mins</Text>
-                                    ) : (
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: stopped ? themeColors.text : themeColors.tabIconDefault,
-                                        }}>Reset to 5 mins</Text>
-                                    )}
-                                </Pressable>
-                            </View>
-                        </View>
-                    ) : (
-                        <View></View>
-                    )}
-                </View>
-
                 {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
                 <View style={{
                     flexDirection: 'row',
@@ -437,7 +222,7 @@ const PomodoroTimer = () => {
                     marginTop: 20
                 }}>
                     { stopped || paused ? (
-                        <Pressable onPress={() => startPomodoro()}
+                        <Pressable onPress={() => startStopwatch()}
                             style={{
                                 flex: 1,
                                 height: 40,
@@ -476,7 +261,7 @@ const PomodoroTimer = () => {
                         <View></View>
                     )}
                     { running ? (
-                        <Pressable onPress={() => pausePomodoro()}
+                        <Pressable onPress={() => pauseStopwatch()}
                             style={{
                                 flex: 1,
                                 width: '100%',
@@ -495,7 +280,7 @@ const PomodoroTimer = () => {
                     ) : (
                         <View></View>
                     )}
-                    <Pressable onPress={() => setTimer(5)}
+                    <Pressable onPress={() => setTimer(55)}
                         style={{
                             flex: 1,
                             width: '100%',
@@ -530,18 +315,14 @@ const PomodoroTimer = () => {
                     <View style={{}}>
                         <Text>Total study time this session: {formatTime(totalTime)}</Text>
                     </View>
-                    <View style={{
-                        marginTop: 5,
-                    }}>
-                        <Text>Study blocks completed this session: {completedBlocks}</Text>
-                    </View>
+
                     { (stopped || paused) && !(totalTime === 0) ? (
                         <View style={{
                             marginTop: 5,
                             width: '100%',
                             height: 40,
                         }}>
-                            <Pressable onPress={() => logSessionStats(totalTime, completedBlocks)}
+                            <Pressable onPress={() => logSessionStats(totalTime)}
                                 style={{
                                     flex: 1,
                                     borderRadius: 8,
@@ -575,9 +356,8 @@ const PomodoroTimer = () => {
                     <ActivityIndicator size='large' color={themeColors.tint}/>
                 </View>
             )}
-
         </View>
     )
 }
 
-export default PomodoroTimer
+export default RegularTimer
