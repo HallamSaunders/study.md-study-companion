@@ -1,5 +1,5 @@
 import { View, Text, Dimensions, LayoutChangeEvent, Pressable } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { BarChart, LineChart } from 'react-native-chart-kit'
 
 //Firestore and database
@@ -23,19 +23,29 @@ const MetricsBarChart = () => {
 
     const [dailyTotals, setDailyTotals] = useState<DailyTotal[]>([]);
 
+    //Rate limiting to stop reads from increasing constantly
+    const [rateLimit, setRateLimit] = useState<number>(0);
+
     //Fetch data for last 7 days
     const fetchData = async () => {
-        try {
-            const totals = await getLastSevenDaysSessionTotals();
-            setDailyTotals(totals);
-        } catch (error) {
-            console.error('Error fetching daily totals:', error);
+        if (rateLimit === 0) {
+            try {
+                const totals = await getLastSevenDaysSessionTotals();
+                setDailyTotals(totals);
+            } catch (error) {
+                console.error('Error fetching daily totals:', error);
+            }
+            //Set refresh rate limit to 2 minutes
+            setRateLimit(120);
+            setTimeout(() => setRateLimit(0), 120000);
         }
     };
 
     useEffect(() => {
         //This is called whenever the component mounts
-        fetchData();
+        if (dailyTotals.length === 0) {
+            fetchData();
+        }
     }, []);
 
     //Sort data by date, trim down to useful dates, and convert time to mins

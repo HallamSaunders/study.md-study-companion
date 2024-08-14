@@ -81,12 +81,13 @@ function InsideTabLayout({ navigation }: RouterProps) {
 
   const [title, setTitle] = useState<string>('Profile');
 
-  useEffect(() => {
-    const fetchUsername = async () => {
-      const username = await currentUsername();
-      setTitle(username);
-    };
+  const fetchUsername = async () => {
+    const username = await currentUsername();
+    setTitle(username);
+  };
 
+  useEffect(() => {
+    //This is called whenever the component mounts
     fetchUsername();
   }, []);
 

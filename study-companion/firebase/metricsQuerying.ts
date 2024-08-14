@@ -16,6 +16,8 @@ interface DailyTotal {
 
 //Get daily totals from last 7 days
 export async function getLastSevenDaysSessionTotals(): Promise<DailyTotal[]> {
+    console.log("FIRESTORE CALLED FROM GETLAST7DAYS");
+    
     //Necessary references
     const userDocId = await getUserDocID();
     const db: Firestore = FIRESTORE_DB;
@@ -32,17 +34,26 @@ export async function getLastSevenDaysSessionTotals(): Promise<DailyTotal[]> {
     const querySnapshot = await getDocs(q);
     
     const dailyTotals: { [date: string]: DailyTotal } = {};
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        const dateString = date.toISOString().split('T')[0];
+
+        dailyTotals[dateString] = {
+            time: 0,
+            date: Timestamp.fromDate(new Date(dateString))
+        };
+    }
+
+    //Aggregate time for each day
     querySnapshot.forEach((doc) => {
         const sessionData = doc.data() as SessionData;
         const dateString = sessionData.timestamp.toDate().toISOString().split('T')[0];
-        
-        if (!dailyTotals[dateString]) {
-            dailyTotals[dateString] = {
-                time: 0,
-                date: Timestamp.fromDate(new Date(dateString))
-            };
+
+        if (dailyTotals[dateString]) {
+            dailyTotals[dateString].time += sessionData.time;
         }
-        dailyTotals[dateString].time += sessionData.time;
     });
 
     //Convert the object to an array and sort by date
