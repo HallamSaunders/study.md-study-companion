@@ -22,7 +22,7 @@ export default {
 
         //Chart colors
         backgroundGradientFrom: "#b3d1ff",
-        backgroundGrafientTo: "#e6f0ff",
+        backgroundGradientTo: "#e6f0ff",
     },
     dark: {
         primary: '#1a1a1a',
@@ -44,6 +44,6 @@ export default {
 
         //Chart colors
         backgroundGradientFrom: "#b3d1ff",
-        backgroundGrafientTo: "#e6f0ff",
+        backgroundGradientTo: "#e6f0ff",
     },
 };

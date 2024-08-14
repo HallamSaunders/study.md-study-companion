@@ -192,20 +192,24 @@ function AuthDependentLayout() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      //console.log('Auth state changed: ', user);
+    // Subscribe to auth state changes
+    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
-    })
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   //Safe area insets hook
   const insets = useSafeAreaInsets();
-  //const navigation = useNavigation();
 
   return (
     <View style={{
         flex: 1,
-        // Paddings to handle safe area
+        //Paddings to handle safe area
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
         paddingLeft: insets.left,
@@ -244,15 +248,15 @@ function AuthDependentLayout() {
 export default function App() {
   //Get color scheme and log it
   const colorScheme = useColorScheme();
-  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   //const colorScheme = 'dark';
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   console.log('Color scheme: ', colorScheme);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
       <StatusBar backgroundColor={themeColors.background}/>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer theme={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
           <AuthDependentLayout />
         </NavigationContainer>
       </SafeAreaProvider>

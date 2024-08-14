@@ -5,6 +5,8 @@ import React from 'react'
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+//Components
 import MetricsBarChart from '../../components/MetricsBarChart';
 
 export default function Metrics() {

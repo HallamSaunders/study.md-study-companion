@@ -51,7 +51,7 @@ const MetricsBarChart = () => {
     //Sort data by date, trim down to useful dates, and convert time to mins
     const sortedTotals = [...dailyTotals].sort((a, b) => a.date.toMillis() - b.date.toMillis());
     const data = {
-        labels: sortedTotals.map(total => total.date.toDate().toLocaleDateString('en-US', { weekday: 'short' })),
+        labels: sortedTotals.map(total => total.date.toDate().toLocaleDateString('en-US', { weekday: 'short' }).substring(0,1)),
         datasets: [{
             data: sortedTotals.map(total => total.time / 60) //Convert time to minutes
         }]
@@ -68,13 +68,23 @@ const MetricsBarChart = () => {
         const { width, height } = event.nativeEvent.layout;
         setChartDimensions({ width, height });
     }, []);
+    
+    const chartWidth = Dimensions.get('window').width * 0.8;
 
     return (
-        <View>
+        <View style={{
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignContent: 'center',
+            borderWidth: 1,
+            borderColor: themeColors.borderSubtle,
+            padding: 10,
+            borderRadius: 8,
+        }}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
-                alignContent: 'center'
+                alignContent: 'center',
             }}>
                 <Text style={{
                     fontSize: 20,
@@ -86,32 +96,41 @@ const MetricsBarChart = () => {
                     <Feather name='download-cloud' size={18} color={themeColors.tabIconDefault}/>
                 </Pressable>
             </View>
-            <BarChart
-                data={data}
-                width={Dimensions.get('window').width * 0.8}
-                height={200}
-                yAxisSuffix="m"
-                yAxisLabel=""
-                chartConfig={{
-                    backgroundColor: themeColors.background,
-                    backgroundGradientFrom: themeColors.background,
-                    backgroundGradientTo: themeColors.background,
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => themeColors.tint,
-                    labelColor: (opacity = 1) => themeColors.text,
-                    style: {
-                        borderRadius: 8,
-                    },
-                    propsForVerticalLabels: {
-                        rotation: -30,
-                        fontSize: 14,
-                    }
-                }}
-                style={{
-                    marginVertical: 8,
-                    borderRadius: 16
-                }}
-            />
+            <View style={{
+                flexDirection: 'column',
+                width: '80%',
+                alignItems: 'center',
+                transform: [{ translateX: -10 }],
+                marginVertical: 8,
+            }}>
+                <BarChart
+                    data={data}
+                    width={chartWidth}
+                    height={200}
+                    yAxisSuffix="m"
+                    yAxisLabel=""
+                    fromZero={true}
+                    withInnerLines={false}
+                    showValuesOnTopOfBars={false}
+                    chartConfig={{
+                        barPercentage: 0.7,
+                        barRadius: 8,
+                        backgroundColor: themeColors.background,
+                        backgroundGradientFrom: themeColors.background,
+                        backgroundGradientTo: themeColors.background,
+                        decimalPlaces: 0,
+                        color: (opacity = 1) => themeColors.tint,
+                        labelColor: (opacity = 1) => themeColors.text,
+                        style: {
+                            borderRadius: 8,
+                        },
+                        propsForVerticalLabels: {
+                            rotation: 0,
+                            fontSize: 14,
+                        },
+                    }}
+                />
+            </View>
         </View>
     )
 }

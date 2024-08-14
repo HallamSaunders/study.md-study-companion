@@ -258,7 +258,7 @@ const PomodoroTimer = () => {
 
     return (
         <View>
-            <View onLayout={handleLayout} style={{
+            <View onLayout={handleLayout} style={{  
                     width: '100%',
                     flexDirection: 'column',
                     justifyContent: 'center',

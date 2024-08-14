@@ -1,15 +1,13 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 
-//Color schemes
+//Color schemes and insets
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 //Timers and components
-import StopwatchTimer from '../../components/StopwatchTimer';
 import PomodoroTimer from '../../components/PomodoroTimer';
-import { reload } from 'firebase/auth';
 import RegularTimer from '../../components/RegularTimer';
 
 export default function Pomodoro() {
