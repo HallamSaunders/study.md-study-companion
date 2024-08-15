@@ -55,7 +55,7 @@ export default function Metrics({ navigation }: RouterProps) {
           width: '80%',
           alignItems: 'center',
         }}>
-          <MetricsBarChart />
+          <MetricsBarChart navigation={navigation} />
         </View>
       </View>
     </View>
