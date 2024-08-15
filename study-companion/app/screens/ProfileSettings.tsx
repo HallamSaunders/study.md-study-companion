@@ -21,17 +21,18 @@ export default function ProfileSettings() {
       <Pressable onPress={() => FIREBASE_AUTH.signOut()}
         style={{
             width: '80%',
-            paddingVertical: 10,
-            paddingHorizontal: 20,
+            height: 40,
             alignItems: 'center',
-            marginBottom: 10,
-            justifyContent: 'flex-end',
+            justifyContent: 'center',
             backgroundColor: 'transparent',
             borderColor: themeColors.borderAlert,
             borderWidth: 1,
             borderRadius: 8,
           }}>
-        <Text>Sign Out</Text>
+        <Text style={{
+          color: themeColors.textAlert,
+          fontSize: 14
+        }}>Sign Out</Text>
       </Pressable>
     </View>
   )

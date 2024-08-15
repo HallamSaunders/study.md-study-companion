@@ -35,9 +35,12 @@ const MetricsBarChart = () => {
     //Rate limiting to stop reads from increasing constantly
     const [rateLimit, setRateLimit] = useState<number>(0);
 
+    const [loading, setLoading] = useState(false);
+
     //Fetch data for last 7 days
     const fetchData = async () => {
         if (rateLimit === 0) {
+            setLoading(true);
             try {
                 const weeklyData: weeklyData = await getLastSevenDaysSessionTotals();
                 setWeeklyData(weeklyData);
@@ -49,11 +52,12 @@ const MetricsBarChart = () => {
             setRateLimit(120);
             setTimeout(() => setRateLimit(0), 120000);
         }
+        setLoading(false);
     };
 
     useEffect(() => {
         //This is called whenever the component mounts
-        if (dailyTotals.length === 0) {
+        if (dailyTotals.length === 0 || weeklyData === undefined) {
             fetchData();
         }
     }, []);
@@ -83,104 +87,138 @@ const MetricsBarChart = () => {
 
     return (
         <View>
-            <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignContent: 'center',
-                borderWidth: 1,
-                borderColor: themeColors.borderSubtle,
-                padding: 10,
-                borderRadius: 8,
-                }}>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignContent: 'center',
-                    paddingLeft: 10,
-                    paddingRight: 10
-                }}>
-                    <Text style={{
-                        fontSize: 20,
-                        color: themeColors.text
-                    }}>Your weekly recap</Text>
-                    <Pressable onPress={() => updateGraph()}
-                        style={{
-                            justifyContent: 'flex-end'
-                        }}>
-                        <Feather name='download-cloud' size={18} color={themeColors.tabIconDefault}/>
-                    </Pressable>
+            {loading ? (
+                <View>
+                    <Text>LOADING</Text>
                 </View>
-                <View style={{
-                    flexDirection: 'column',
-                    width: '80%',
-                    alignItems: 'center',
-                    transform: [{ translateX: 25 }],
-                    marginVertical: 8,
-                }}>
-                    <BarChart
-                        data={data}
-                        width={chartWidth}
-                        height={200}
-                        yAxisSuffix="m"
-                        yAxisLabel=""
-                        fromZero={true}
-                        withInnerLines={false}
-                        showValuesOnTopOfBars={false}
-                        chartConfig={{
-                            barPercentage: 0.7,
-                            barRadius: 8,
-                            backgroundColor: themeColors.background,
-                            backgroundGradientFrom: themeColors.background,
-                            backgroundGradientTo: themeColors.background,
-                            decimalPlaces: 0,
-                            color: (opacity = 1) => themeColors.tint,
-                            labelColor: (opacity = 1) => themeColors.text,
-                            style: {
-                                borderRadius: 8,
-                            },
-                            propsForVerticalLabels: {
-                                rotation: 0,
-                                fontSize: 14,
-                            },
-                        }}
-                    />
-                </View>
-            </View>
-            <View style={{
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignContent: 'center',
-                //borderWidth: 1,
-                //borderColor: themeColors.borderSubtle,
-                padding: 10,
-                borderRadius: 8,
-                width: '100%'
-                }}>
-                <Text style={{
-                        fontSize: 20,
-                        color: themeColors.text
-                    }}>Your weekly stats</Text>
+            ) : (
                     <View>
-                        <Text style={{
-                            fontSize: 14,
-                            color: themeColors.text
-                            }}>
-                            &middot; You averaged {Math.round(weeklyData!.weeklyAverage / 60)} minutes of study per day.
-                        </Text>
-                        <Text style={{
-                            fontSize: 14,
-                            color: themeColors.text
-                            }}>
-                            &middot; You completed {Math.round(weeklyData!.totalBlocks)} Pomodoro study blocks.
-                        </Text>
-                        <Text style={{
-                            fontSize: 14,
-                            color: themeColors.text
-                            }}>
-                            &middot; That means the average length of a Pomodoro study block was {Math.round(weeklyData!.avgTimePerBlock / 60)} minutes!
-                        </Text>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        borderWidth: 1,
+                        borderColor: themeColors.borderSubtle,
+                        padding: 10,
+                        borderRadius: 8,
+                        }}>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignContent: 'center',
+                            paddingLeft: 10,
+                            paddingRight: 10
+                        }}>
+                            <Text style={{
+                                fontSize: 20,
+                                color: themeColors.text
+                            }}>Your weekly recap</Text>
+                            <Pressable onPress={() => updateGraph()}
+                                style={{
+                                    justifyContent: 'flex-end'
+                                }}>
+                                <Feather name='download-cloud' size={18} color={themeColors.tabIconDefault}/>
+                            </Pressable>
+                        </View>
+                        <View style={{
+                            flexDirection: 'column',
+                            width: '80%',
+                            alignItems: 'center',
+                            transform: [{ translateX: 25 }],
+                            marginTop: 12,
+                        }}>
+                            <BarChart
+                                data={data}
+                                width={chartWidth}
+                                height={200}
+                                yAxisSuffix="m"
+                                yAxisLabel=""
+                                fromZero={true}
+                                withInnerLines={false}
+                                showValuesOnTopOfBars={false}
+                                chartConfig={{
+                                    barPercentage: 0.7,
+                                    barRadius: 8,
+                                    backgroundColor: themeColors.background,
+                                    backgroundGradientFrom: themeColors.background,
+                                    backgroundGradientTo: themeColors.background,
+                                    decimalPlaces: 0,
+                                    color: (opacity = 1) => themeColors.tint,
+                                    labelColor: (opacity = 1) => themeColors.text,
+                                    style: {
+                                        borderRadius: 8,
+                                    },
+                                    propsForVerticalLabels: {
+                                        rotation: 0,
+                                        fontSize: 14,
+                                    },
+                                }}
+                            />
+                        </View>
                     </View>
-            </View>
+                    <View style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        marginTop: 40,
+                        padding: 10,
+                        borderRadius: 8,
+                        width: '100%'
+                        }}>
+                        <Text style={{
+                                fontSize: 20,
+                                color: themeColors.text
+                            }}>Your weekly stats</Text>
+                            <View>
+                                {!(weeklyData === undefined) ? (
+                                    <View>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text,
+                                            marginTop: 12,
+                                            }}>
+                                            &middot; You averaged {Math.round(weeklyData.weeklyAverage / 60)} minutes of study per day.
+                                        </Text>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text
+                                            }}>
+                                            &middot; You completed {Math.round(weeklyData.totalBlocks)} Pomodoro study blocks.
+                                        </Text>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text
+                                            }}>
+                                            &middot; That means the average length of a Pomodoro study block was {Math.round(weeklyData!.avgTimePerBlock / 60)} minutes!
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <View>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text,
+                                            marginTop: 12,
+                                            }}>
+                                            &middot; You averaged ____ minutes of study per day.
+                                        </Text>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text
+                                            }}>
+                                            &middot; You completed ____ Pomodoro study blocks.
+                                        </Text>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text
+                                            }}>
+                                            &middot; That means the average length of a Pomodoro study block was ____ minutes!
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                    </View>
+                </View>
+            )}
         </View>
     )
 }
