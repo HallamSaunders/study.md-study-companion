@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { NavigationProp } from '@react-navigation/native';
 
 //Color schemes and insets
 import { useColorScheme } from '../../components/useColorScheme';
@@ -9,7 +10,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 //Components
 import MetricsBarChart from '../../components/MetricsBarChart';
 
-export default function Metrics() {
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+export default function Metrics({ navigation }: RouterProps) {
   //Spacing
   const insets = useSafeAreaInsets();
 

@@ -1,6 +1,7 @@
-import { View, Text, Dimensions, LayoutChangeEvent, Pressable } from 'react-native'
+import { View, Text, Dimensions, LayoutChangeEvent, Pressable, ActivityIndicator } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { BarChart, LineChart } from 'react-native-chart-kit'
+import { BarChart } from 'react-native-chart-kit'
+import { NavigationProp } from '@react-navigation/native';
 
 //Firestore and database
 import { getLastSevenDaysSessionTotals } from '../firebase/metricsQuerying';
@@ -10,6 +11,7 @@ import { Timestamp } from 'firebase/firestore';
 import { useColorScheme } from './useColorScheme';
 import Colors from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 
 interface DailyTotal {
     time: number,
@@ -24,7 +26,11 @@ interface weeklyData {
     avgTimePerBlock: number
 }
 
-const MetricsBarChart = () => {   
+interface RouterProps {
+    navigation: NavigationProp<any, any>;
+}
+
+const MetricsBarChart = ({ navigation }: RouterProps) => {   
     //Color schemes
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
@@ -89,7 +95,7 @@ const MetricsBarChart = () => {
         <View>
             {loading ? (
                 <View>
-                    <Text>LOADING</Text>
+                    <ActivityIndicator size='large' color={themeColors.tint}/>
                 </View>
             ) : (
                     <View>
@@ -169,31 +175,31 @@ const MetricsBarChart = () => {
                                 fontSize: 20,
                                 color: themeColors.text
                             }}>Your weekly stats</Text>
-                            <View>
-                                {!(weeklyData === undefined) ? (
-                                    <View>
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: themeColors.text,
-                                            marginTop: 12,
-                                            }}>
-                                            &middot; You averaged {Math.round(weeklyData.weeklyAverage / 60)} minutes of study per day.
-                                        </Text>
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: themeColors.text
-                                            }}>
-                                            &middot; You completed {Math.round(weeklyData.totalBlocks)} Pomodoro study blocks.
-                                        </Text>
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: themeColors.text
-                                            }}>
-                                            &middot; That means the average length of a Pomodoro study block was {Math.round(weeklyData!.avgTimePerBlock / 60)} minutes!
-                                        </Text>
-                                    </View>
-                                ) : (
-                                    <View>
+                        <View>
+                            {!(weeklyData === undefined) ? (
+                                <View>
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: themeColors.text,
+                                        marginTop: 12,
+                                        }}>
+                                        &middot; You averaged {Math.round(weeklyData.weeklyAverage / 60)} minutes of study per day.
+                                    </Text>
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: themeColors.text
+                                        }}>
+                                        &middot; You completed {Math.round(weeklyData.totalBlocks)} Pomodoro study blocks.
+                                    </Text>
+                                    <Text style={{
+                                        fontSize: 14,
+                                        color: themeColors.text
+                                        }}>
+                                        &middot; That means the average length of a Pomodoro study block was {Math.round(weeklyData!.avgTimePerBlock / 60)} minutes!
+                                    </Text>
+                                </View>
+                            ) : (
+                                <View>
                                         <Text style={{
                                             fontSize: 14,
                                             color: themeColors.text,
@@ -213,9 +219,30 @@ const MetricsBarChart = () => {
                                             }}>
                                             &middot; That means the average length of a Pomodoro study block was ____ minutes!
                                         </Text>
-                                    </View>
-                                )}
-                            </View>
+                                </View>
+                            )}
+                        </View>
+                        <Pressable onPress={() =>  navigation.navigate("Timeline")}
+                            style={{
+                                height: 40,
+                                borderRadius: 8,
+                                paddingHorizontal: 10,
+                                backgroundColor: themeColors.tint,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginTop: 40,
+
+                                flexDirection: 'row'
+                            }}>
+                                <Text style={{
+                                    fontSize: 14,
+                                    color: themeColors.text,
+                                    marginRight: 12
+                                }}>View weekly timeline</Text>
+                                <FontAwesome6 name='timeline'
+                                    color={themeColors.text}
+                                    size={14}/>
+                        </Pressable>
                     </View>
                 </View>
             )}

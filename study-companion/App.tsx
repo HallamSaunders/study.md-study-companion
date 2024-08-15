@@ -23,11 +23,11 @@ import ProfileScreen from './app/(tabs)/Profile';
 import TimerScreen from './app/(tabs)/Pomodoro';
 import ProfileSettings from './app/screens/ProfileSettings';
 import AuthScreen from './app/auth/AuthScreen';
+import Timeline from './app/screens/Timeline';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
 import Colors from './constants/Colors';
-import { useNavigation } from 'expo-router';
 
 const CustomDarkTheme = {
   ...DarkTheme,
@@ -234,6 +234,7 @@ function AuthDependentLayout() {
                 </Pressable>
               }*/
             }}/>
+            <Stack.Screen name='Timeline' component={Timeline} options={{ headerShown: false }} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
@@ -248,7 +249,6 @@ function AuthDependentLayout() {
 export default function App() {
   //Get color scheme and log it
   const colorScheme = useColorScheme();
-  //const colorScheme = 'dark';
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   console.log('Color scheme: ', colorScheme);
 
