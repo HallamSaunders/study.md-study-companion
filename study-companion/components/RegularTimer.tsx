@@ -280,7 +280,7 @@ const RegularTimer = () => {
                     ) : (
                         <View></View>
                     )}
-                    <Pressable onPress={() => setTimer(55)}
+                    {/*<Pressable onPress={() => setTimer(55)}
                         style={{
                             flex: 1,
                             width: '100%',
@@ -295,7 +295,7 @@ const RegularTimer = () => {
                             fontSize: 14,
                             color: themeColors.text,
                         }}>TEST BUTTON</Text> 
-                    </Pressable>
+                    </Pressable>*/}
                 </View>
             </View>
 
@@ -312,8 +312,11 @@ const RegularTimer = () => {
                         borderRadius: 8,
                         padding: 10
                     }}>
-                    <View style={{}}>
-                        <Text>Total study time this session: {formatTime(totalTime)}</Text>
+                    <View>
+                        <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Total study time this session: {formatTime(totalTime)}</Text>
                     </View>
 
                     { (stopped || paused) && !(totalTime === 0) ? (

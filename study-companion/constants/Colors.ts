@@ -31,16 +31,16 @@ export default {
 
         text: '#ffffff',
         textAlert: '#ff8080',
-        subtleText: '#cccccc',
+        subtleText: '#737373',
         background: '#1a1a1a',
-        border: '#cccccc',
+        border: '#737373',
         borderAlert: '#ff8080',
         tint: tintColorDark,
-        tabIconDefault: '#ccc',
+        tabIconDefault: '#737373',
         tabIconSelected: tintColorDark,
         subtleBackground: "#e6e6e6",
-        backgroundSelected: "#cccccc",
-        borderSubtle: "#cccccc",
+        backgroundSelected: "#737373",
+        borderSubtle: "#737373",
 
         //Chart colors
         backgroundGradientFrom: "#b3d1ff",

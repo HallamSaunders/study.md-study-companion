@@ -275,11 +275,13 @@ const PomodoroTimer = () => {
                     <View>
                         { studying ? (
                             <Text style={{
-                                fontSize: 48
+                                fontSize: 48,
+                                color: themeColors.text
                             }}>Study</Text>
                         ) : (
                             <Text style={{
-                                fontSize: 48
+                                fontSize: 48,
+                                color: themeColors.text
                             }}>Break</Text>
                         )}
                     </View>
@@ -301,7 +303,10 @@ const PomodoroTimer = () => {
                                 padding: 5,
                                 borderRadius: 8
                                 }}>
-                            <Text>Study</Text>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text
+                            }}>Study</Text>
                         </Pressable>
                         <Pressable onPress={() => {
                                 setStudying(false);
@@ -312,7 +317,10 @@ const PomodoroTimer = () => {
                                 padding: 5,
                                 borderRadius: 8
                                 }}>
-                            <Text>Break</Text>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text
+                            }}>Break</Text>
                         </Pressable> 
                     </View>
                 ) : (
@@ -495,7 +503,7 @@ const PomodoroTimer = () => {
                     ) : (
                         <View></View>
                     )}
-                    <Pressable onPress={() => setTimer(5)}
+                    {/*<Pressable onPress={() => setTimer(5)}
                         style={{
                             flex: 1,
                             width: '100%',
@@ -510,7 +518,7 @@ const PomodoroTimer = () => {
                             fontSize: 14,
                             color: themeColors.text,
                         }}>TEST BUTTON</Text> 
-                    </Pressable>
+                    </Pressable>*/}
                 </View>
             </View>
 
@@ -528,12 +536,18 @@ const PomodoroTimer = () => {
                         padding: 10
                     }}>
                     <View style={{}}>
-                        <Text>Total study time this session: {formatTime(totalTime)}</Text>
+                        <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text
+                            }}>Total study time this session: {formatTime(totalTime)}</Text>
                     </View>
                     <View style={{
                         marginTop: 5,
                     }}>
-                        <Text>Study blocks completed this session: {completedBlocks}</Text>
+                        <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text
+                            }}>Study blocks completed this session: {completedBlocks}</Text>
                     </View>
                     { (stopped || paused) && !(totalTime === 0) ? (
                         <View style={{

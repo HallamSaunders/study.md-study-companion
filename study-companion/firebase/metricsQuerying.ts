@@ -1,6 +1,7 @@
 import { collection, Firestore, getDocs, query, Timestamp, where } from "firebase/firestore";
 import { getUserDocID } from "./databaseCalls";
 import { FIRESTORE_DB } from "./firebase-config";
+import { useState } from "react";
 
 interface SessionData {
     time: number;
@@ -11,12 +12,22 @@ interface SessionData {
 
 interface DailyTotal {
     time: number,
+    blocks: number,
     date: Timestamp
 }
 
+interface weeklyData {
+    dailyTotals: DailyTotal[],
+    weeklyAverage: number,
+    totalBlocks: number,
+    avgTimePerBlock: number
+}
+
 //Get daily totals from last 7 days
-export async function getLastSevenDaysSessionTotals(): Promise<DailyTotal[]> {
-    console.log("FIRESTORE CALLED FROM GETLAST7DAYS");
+export async function getLastSevenDaysSessionTotals(): Promise<weeklyData> {
+    let dailyTotalsArray: DailyTotal[] = [];
+    
+    console.log("Firestore called from getLastSevenDaysSessionTotals()");
     
     //Necessary references
     const userDocId = await getUserDocID();
@@ -40,8 +51,10 @@ export async function getLastSevenDaysSessionTotals(): Promise<DailyTotal[]> {
         date.setDate(date.getDate() - i);
         const dateString = date.toISOString().split('T')[0];
 
+        //Initialise time and sessions to 0
         dailyTotals[dateString] = {
             time: 0,
+            blocks: 0,
             date: Timestamp.fromDate(new Date(dateString))
         };
     }
@@ -53,9 +66,32 @@ export async function getLastSevenDaysSessionTotals(): Promise<DailyTotal[]> {
 
         if (dailyTotals[dateString]) {
             dailyTotals[dateString].time += sessionData.time;
+            dailyTotals[dateString].blocks += sessionData.blocks;
         }
     });
 
     //Convert the object to an array and sort by date
-    return Object.values(dailyTotals).sort((a, b) => a.date.seconds - b.date.seconds);
+    dailyTotalsArray = (Object.values(dailyTotals).sort((a, b) => a.date.seconds - b.date.seconds));
+
+    //Calculate daily average study time
+    let weeklyTotal: number = 0;
+    dailyTotalsArray.forEach((total: DailyTotal) => {
+        weeklyTotal += total.time;
+    });
+
+    let weeklyTotalBlocks: number = 0;
+    dailyTotalsArray.forEach((total: DailyTotal) => {
+        weeklyTotalBlocks += total.blocks;
+    });
+
+    console.log("Weekly total: ", weeklyTotal, "; weekly total blocks: ", weeklyTotalBlocks);
+
+    const weeklyDataReturn: weeklyData = {
+        dailyTotals: Object.values(dailyTotals).sort((a, b) => a.date.seconds - b.date.seconds),
+        weeklyAverage: (weeklyTotal / 7),
+        totalBlocks: weeklyTotalBlocks,
+        avgTimePerBlock: (weeklyTotalBlocks > 0) ? (weeklyTotal / weeklyTotalBlocks) : 0
+    }
+
+    return weeklyDataReturn;
 }

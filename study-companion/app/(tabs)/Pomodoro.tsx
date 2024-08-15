@@ -47,7 +47,10 @@ export default function Pomodoro() {
             padding: 5,
             borderRadius: 8
         }}>
-          <Text>Pomodoro</Text>
+          <Text style={{
+              fontSize: 14,
+              color: themeColors.text
+          }}>Pomodoro</Text>
         </Pressable>
         <Pressable onPress={() => setPomodoro(false)}
           style={{
@@ -55,7 +58,10 @@ export default function Pomodoro() {
             padding: 5,
             borderRadius: 8
         }}>
-          <Text>Stopwatch</Text>
+          <Text style={{
+              fontSize: 14,
+              color: themeColors.text
+          }}>Stopwatch</Text>
         </Pressable>
       </View>
       <View style={{

@@ -45,11 +45,10 @@ export default function Metrics() {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
+        {/* RENDER BAR CHART AND AVERAGES */}
         <View style={{
           width: '80%',
           alignItems: 'center',
-          //borderColor: 'red',
-          //borderWidth: 2
         }}>
           <MetricsBarChart />
         </View>
