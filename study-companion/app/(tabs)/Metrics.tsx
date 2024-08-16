@@ -61,5 +61,3 @@ export default function Metrics({ navigation }: RouterProps) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({})
