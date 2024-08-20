@@ -9,18 +9,14 @@ import CalendarPageCalendar from '../../components/CalendarPageCalendar';
 //Color schemes
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
-import { todayString } from 'react-native-calendars/src/expandableCalendar/commons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CalendarComponent from '../../components/CalendarComponent';
 
 export default function CalendarScreen() {
   //Color schemes and setup
   const colorScheme = useColorScheme();
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   const insets = useSafeAreaInsets();
-
-
-  //Calendar logic
-  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -32,10 +28,10 @@ export default function CalendarScreen() {
       }
     })();
   }, []);
-  
-  const onDayPress = (day: { dateString: React.SetStateAction<string>; }) => {
-    setSelectedDate(day.dateString);
-    console.log('Selected day:', day);
+
+  const handleSelectDates = (dates: string[]) => {
+    console.log('Selected dates:', dates);
+    // Do something with the selected dates
   };
 
   return (
@@ -45,7 +41,7 @@ export default function CalendarScreen() {
       paddingLeft: insets.left,
       paddingRight: insets.right,
     }}>
-      <CalendarPageCalendar />
+      <CalendarComponent onSelectDates={handleSelectDates}/>
     </View>
   )
 }

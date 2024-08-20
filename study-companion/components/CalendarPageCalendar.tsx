@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { Calendar } from 'react-native-calendars'
 
 //Color schemes
@@ -11,6 +11,9 @@ const CalendarPageCalendar = () => {
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   
+    //Calendar logic
+    const [selected, setSelected] = useState("");
+
     return (
         <View>
             <Calendar style={{
@@ -35,6 +38,14 @@ const CalendarPageCalendar = () => {
                     textDayFontSize: 16,
                     textMonthFontSize: 16,
                     textDayHeaderFontSize: 16
+                }}
+                enableSwipeMethods={true}
+                onDayPress={(day: any) => {
+                    setSelected(day);
+                    console.log('Selected day: ', day);
+                }}
+                markedDates={{
+                    [selected]: {selected: true, disableTouchEvent: true, selectedDotColor: 'orange'}
                 }}
             />
         </View>
