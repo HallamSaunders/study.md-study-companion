@@ -24,6 +24,7 @@ import TimerScreen from './app/(tabs)/Pomodoro';
 import ProfileSettings from './app/screens/ProfileSettings';
 import AuthScreen from './app/auth/AuthScreen';
 import Timeline from './app/screens/Timeline';
+import AnonymousProfile from './app/(tabs)/AnonymousProfile';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
@@ -165,39 +166,54 @@ function InsideTabLayout({ navigation }: RouterProps) {
   );
 }
 
-const HeaderLeft = ({ navigation }: RouterProps) => {
+function InsideTabLayoutAnon({ navigation }: RouterProps) {
   const colorScheme = useColorScheme();
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   const iconSize: number = 28;
 
   return (
-    <Pressable onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}>
-      <Feather 
-        name='arrow-left-circle'
-        color={themeColors.tabIconDefault}
-        size={iconSize}
-        style={{
-          marginRight: 12
-        }}
-      />
-    </Pressable>
+    <Tab.Navigator initialRouteName="Timer" screenOptions={{ tabBarShowLabel: false }}>
+      <Tab.Screen name="Notes" component={NotesScreen} options={{ 
+        title: "Notes",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name='book-open'
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
+      <Tab.Screen name="Profile" component={AnonymousProfile} options={{ 
+        title: "Anonymous",
+        headerShown: true,
+        headerTitleAlign: 'center',
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="user"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        },
+      }}/>
+    </Tab.Navigator>
   );
-};
+}
 
 function AuthDependentLayout() {
   const colorScheme = useColorScheme();
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   const iconSize: number = 28;
-  
+
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Subscribe to auth state changes
+    //Subscribe to auth state changes
     const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
     });
 
-    // Cleanup subscription on unmount
+    //Cleanup subscription on unmount
     return () => {
       unsubscribe();
     };
@@ -221,23 +237,12 @@ function AuthDependentLayout() {
             <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{
               title: 'Settings',
               headerTitleAlign: 'center',
-              /*headerLeft: () => {
-                return <Pressable onPress={() => navigation.navigate('Tabs', { screen: 'Profile' })}>
-                  <Feather 
-                    name='arrow-left'
-                    color={themeColors.tabIconDefault}
-                    size={iconSize}
-                    style={{
-                      marginRight: 12
-                    }}
-                  />
-                </Pressable>
-              }*/
             }}/>
             <Stack.Screen name='Timeline' component={Timeline} options={{ headerShown: false }} />
           </Stack.Navigator>
         ) : (
           <Stack.Navigator>
+            <Stack.Screen name='Tabs' component={InsideTabLayoutAnon} options={{ headerShown: false }} />
             <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
             <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
           </Stack.Navigator>

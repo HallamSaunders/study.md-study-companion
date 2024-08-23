@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native';
 
 //Authentication
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInAnonymously, signInWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH } from '../../firebase/firebase-config';
 
 //Color schemes
@@ -36,6 +36,18 @@ export default function LoginScreen({ navigation }: RouterProps) {
             setLoading(false);
         }
     }
+
+    const handleNoAccountLogin = async () => {
+        setLoading(true);
+        try {
+          const userCredential = await signInAnonymously(FIREBASE_AUTH);
+          console.log("Signed in as anonymous:", userCredential.user);
+        } catch (error) {
+          console.error("Error signing in anonymously:", error);
+        } finally {
+            setLoading(false);
+        }
+      };
 
     return (
         <View style={styles.container}>
@@ -82,19 +94,28 @@ export default function LoginScreen({ navigation }: RouterProps) {
                             paddingHorizontal: 10,
                             backgroundColor: themeColors.tint,
                             justifyContent: 'center',
-                            alignItems: 'center'
+                            alignItems: 'center',
+                            marginBottom: 12
                         }}>
                             <Text style={{
                                 fontSize: 14,
                                 color: themeColors.text,
                             }}>Log in</Text>        
                     </Pressable>
-                    <Pressable onPress={() => navigation.navigate('AuthScreen')} style={styles.link}>
+                    <Pressable onPress={() => navigation.navigate('AuthScreen')} style={{
+                        marginTop: 40,
+                        marginBottom: 12
+                    }}>
                         <Text style={{
                             fontSize: 14,
                             color: themeColors.text,
-                            marginBottom: 40
                         }}>Don't have an account yet? Click here to sign up!</Text>
+                    </Pressable>
+                    <Pressable onPress={handleNoAccountLogin}>
+                        <Text style={{
+                            fontSize: 14,
+                            color: themeColors.text,
+                        }}>Continue without an account? Click here!</Text>
                     </Pressable>
                 </View>
             ) : (
@@ -110,8 +131,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    link: {
-        marginTop: 15,
-        paddingVertical: 15,
-    }
+
 })
