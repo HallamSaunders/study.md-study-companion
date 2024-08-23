@@ -37,18 +37,6 @@ export default function LoginScreen({ navigation }: RouterProps) {
         }
     }
 
-    const handleNoAccountLogin = async () => {
-        setLoading(true);
-        try {
-          const userCredential = await signInAnonymously(FIREBASE_AUTH);
-          console.log("Signed in as anonymous:", userCredential.user);
-        } catch (error) {
-          console.error("Error signing in anonymously:", error);
-        } finally {
-            setLoading(false);
-        }
-      };
-
     return (
         <View style={styles.container}>
             <Text style={{
@@ -111,7 +99,7 @@ export default function LoginScreen({ navigation }: RouterProps) {
                             color: themeColors.text,
                         }}>Don't have an account yet? Click here to sign up!</Text>
                     </Pressable>
-                    <Pressable onPress={handleNoAccountLogin}>
+                    <Pressable onPress={() => navigation.navigate("Tabs")}>
                         <Text style={{
                             fontSize: 14,
                             color: themeColors.text,

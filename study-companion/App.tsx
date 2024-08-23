@@ -6,7 +6,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Pressable, View } from 'react-native';
 
-
 import { Feather } from '@expo/vector-icons';
 
 //Auth
@@ -180,7 +179,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
           return <Feather
             name='book-open'
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
-            size={iconSize}  
+            size={iconSize}
           />
         }
       }}/>
@@ -192,7 +191,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
           return <Feather
             name="user"
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
-            size={iconSize}  
+            size={iconSize}
           />
         },
       }}/>
@@ -225,28 +224,29 @@ function AuthDependentLayout() {
   return (
     <View style={{
         flex: 1,
+
         //Paddings to handle safe area
         paddingTop: insets.top,
         paddingBottom: insets.bottom,
         paddingLeft: insets.left,
         paddingRight: insets.right,
       }}>
-        {user ? (
-          <Stack.Navigator>
-            <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
-            <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{
-              title: 'Settings',
-              headerTitleAlign: 'center',
-            }}/>
-            <Stack.Screen name='Timeline' component={Timeline} options={{ headerShown: false }} />
-          </Stack.Navigator>
-        ) : (
-          <Stack.Navigator>
-            <Stack.Screen name='Tabs' component={InsideTabLayoutAnon} options={{ headerShown: false }} />
-            <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
-            <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
-          </Stack.Navigator>
-        )}
+      {user ? (
+        <Stack.Navigator>
+          <Stack.Screen name='Tabs' component={InsideTabLayout} options={{ headerShown: false }} />
+          <Stack.Screen name='ProfileSettings' component={ProfileSettings} options={{
+            title: 'Settings',
+            headerTitleAlign: 'center',
+          }}/>
+          <Stack.Screen name='Timeline' component={Timeline} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen name='Tabs' component={InsideTabLayoutAnon} options={{ headerShown: false }} />
+          <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
+        </Stack.Navigator>
+      )}
     </View>
   );
 }
