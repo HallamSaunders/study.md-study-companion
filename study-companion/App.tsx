@@ -24,6 +24,7 @@ import ProfileSettings from './app/screens/ProfileSettings';
 import AuthScreen from './app/auth/AuthScreen';
 import Timeline from './app/screens/Timeline';
 import AnonymousProfile from './app/(tabs)/AnonymousProfile';
+import NotesFileNavigator from './app/screens/NotesFileNavigator';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
@@ -115,7 +116,7 @@ function InsideTabLayout({ navigation }: RouterProps) {
           />
         },
         headerRight: () => {
-          return <Pressable onPress={() => navigation.navigate('ProfileSettings')}>
+          return <Pressable onPress={() => navigation.navigate('NotesFileNavigator')}>
             <Feather 
               name='folder'
               color={themeColors.tabIconDefault}
@@ -185,14 +186,26 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
   return (
     <Tab.Navigator initialRouteName="Profile" screenOptions={{ tabBarShowLabel: false }}>
       <Tab.Screen name="Notes" component={NotesScreen} options={{ 
-        title: "Notes",
-        headerShown: false,
+        title: "Your Notes",
+        headerShown: true,
         tabBarIcon: ({ focused }) => {
           return <Feather
             name='book-open'
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
-            size={iconSize}
+            size={iconSize}  
           />
+        },
+        headerRight: () => {
+          return <Pressable onPress={() => navigation.navigate('NotesFileNavigator')}>
+            <Feather 
+              name='folder'
+              color={themeColors.tabIconDefault}
+              size={iconSize}
+              style={{
+                marginRight: 12
+              }}
+            />
+          </Pressable>
         }
       }}/>
       <Tab.Screen name="Profile" component={AnonymousProfile} options={{ 
@@ -250,11 +263,13 @@ function AuthDependentLayout() {
             title: 'Settings',
             headerTitleAlign: 'center',
           }}/>
+          <Stack.Screen name='NotesFileNavigator' component={NotesFileNavigator} options={{ headerShown: false }} />
           <Stack.Screen name='Timeline' component={Timeline} options={{ headerShown: false }} />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator>
           <Stack.Screen name='Tabs' component={InsideTabLayoutAnon} options={{ headerShown: false }} />
+          <Stack.Screen name='NotesFileNavigator' component={NotesFileNavigator} options={{ headerShown: false }} />
           <Stack.Screen name='Login' component={LoginScreen} options={{ headerShown: false }}/>
           <Stack.Screen name='AuthScreen' component={AuthScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
