@@ -8,8 +8,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
 
-const Drawer = createDrawerNavigator();
-
 export default function Notes() {
   //Color schemes
   const colorScheme = useColorScheme();

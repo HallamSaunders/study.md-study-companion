@@ -25,6 +25,7 @@ import AuthScreen from './app/auth/AuthScreen';
 import Timeline from './app/screens/Timeline';
 import AnonymousProfile from './app/(tabs)/AnonymousProfile';
 import NotesFileNavigator from './app/screens/NotesFileNavigator';
+import Skills from './app/(tabs)/Skills';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
@@ -105,7 +106,7 @@ function InsideTabLayout({ navigation }: RouterProps) {
           />
         }
       }}/>
-      <Tab.Screen name="Notes" component={NotesScreen} options={{ 
+      {/*<Tab.Screen name="Notes" component={NotesScreen} options={{ 
         title: "Your Notes",
         headerShown: true,
         tabBarIcon: ({ focused }) => {
@@ -126,6 +127,17 @@ function InsideTabLayout({ navigation }: RouterProps) {
               }}
             />
           </Pressable>
+        }
+      }}/>*/}
+      <Tab.Screen name="Skills" component={Skills} options={{ 
+        title: "Skills",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="compass"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
         }
       }}/>
       <Tab.Screen name="Timer" component={TimerScreen} options={{ 
@@ -185,7 +197,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
 
   return (
     <Tab.Navigator initialRouteName="Profile" screenOptions={{ tabBarShowLabel: false }}>
-      <Tab.Screen name="Notes" component={NotesScreen} options={{ 
+      {/*<Tab.Screen name="Notes" component={NotesScreen} options={{ 
         title: "Your Notes",
         headerShown: true,
         tabBarIcon: ({ focused }) => {
@@ -207,7 +219,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
             />
           </Pressable>
         }
-      }}/>
+      }}/>*/}
       <Tab.Screen name="Profile" component={AnonymousProfile} options={{ 
         title: "Anonymous User",
         headerShown: true,

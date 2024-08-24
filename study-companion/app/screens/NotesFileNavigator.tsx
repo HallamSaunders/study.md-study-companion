@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, TextInput, Alert } from 'react-native';
+import { View, Text, Button, FlatList, TextInput } from 'react-native';
+
+//FileSystem imports
 import * as FileSystem from 'expo-file-system';
+import * as DocumentPicker from 'expo-document-picker';
 import Markdown from 'react-native-markdown-display';
+import { StorageAccessFramework } from 'expo-file-system';
 
 interface Note {
   name: string;
@@ -9,75 +13,62 @@ interface Note {
 }
 
 const NotesTab: React.FC = () => {
+  const [directory, setDirectory] = useState<string | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [notesDirectory, setNotesDirectory] = useState<string | null>(null);
 
   useEffect(() => {
-    setupNotesDirectory();
-  }, []);
-
-  useEffect(() => {
-    if (notesDirectory) {
+    if (directory) {
       loadNotes();
     }
-  }, [notesDirectory]);
+  }, [directory]);
 
-  const setupNotesDirectory = async () => {
-    const dir = `${FileSystem.documentDirectory}notes/`;
-    const dirInfo = await FileSystem.getInfoAsync(dir);
-    if (!dirInfo.exists) {
-      await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
-    }
-    setNotesDirectory(dir);
+  const pickDirectory = async () => {
   };
 
   const loadNotes = async () => {
-    if (!notesDirectory) return;
+    if (!directory) return;
 
     try {
-      const files = await FileSystem.readDirectoryAsync(notesDirectory);
+      const files = await FileSystem.readDirectoryAsync(directory);
       const loadedNotes = await Promise.all(
         files
           .filter((file) => file.endsWith('.md'))
           .map(async (file) => {
-            const content = await FileSystem.readAsStringAsync(`${notesDirectory}${file}`);
+            const content = await FileSystem.readAsStringAsync(`${directory}/${file}`);
             return { name: file, content };
           })
       );
       setNotes(loadedNotes);
     } catch (error) {
       console.error('Error loading notes:', error);
-      Alert.alert('Error', 'Failed to load notes.');
     }
   };
 
   const createNote = async () => {
-    if (!notesDirectory) return;
+    if (!directory) return;
 
     const newNoteName = `note_${Date.now()}.md`;
     const newNoteContent = '# New Note\n\nStart writing here...';
 
     try {
-      await FileSystem.writeAsStringAsync(`${notesDirectory}${newNoteName}`, newNoteContent);
+      await FileSystem.writeAsStringAsync(`${directory}/${newNoteName}`, newNoteContent);
       setNotes([...notes, { name: newNoteName, content: newNoteContent }]);
     } catch (error) {
       console.error('Error creating note:', error);
-      Alert.alert('Error', 'Failed to create note.');
     }
   };
 
   const saveNote = async () => {
-    if (!notesDirectory || !selectedNote) return;
+    if (!directory || !selectedNote) return;
 
     try {
-      await FileSystem.writeAsStringAsync(`${notesDirectory}${selectedNote.name}`, selectedNote.content);
+      await FileSystem.writeAsStringAsync(`${directory}/${selectedNote.name}`, selectedNote.content);
       setEditMode(false);
       loadNotes();
     } catch (error) {
       console.error('Error saving note:', error);
-      Alert.alert('Error', 'Failed to save note.');
     }
   };
 
@@ -86,33 +77,39 @@ const NotesTab: React.FC = () => {
   );
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
-      <Button title="Create New Note" onPress={createNote} />
-      <FlatList
-        data={notes}
-        renderItem={renderNoteItem}
-        keyExtractor={(item) => item.name}
-        style={{ marginVertical: 10 }}
-      />
-      {selectedNote && (
-        <View style={{ flex: 1 }}>
-          {editMode ? (
-            <>
-              <TextInput
-                multiline
-                value={selectedNote.content}
-                onChangeText={(text) => setSelectedNote({ ...selectedNote, content: text })}
-                style={{ flex: 1, borderWidth: 1, padding: 10 }}
-              />
-              <Button title="Save" onPress={saveNote} />
-            </>
-          ) : (
-            <>
-              <Markdown>{selectedNote.content}</Markdown>
-              <Button title="Edit" onPress={() => setEditMode(true)} />
-            </>
+    <View style={{ flex: 1 }}>
+      {!directory && (
+        <Button title="Pick a directory to store notes" onPress={pickDirectory} />
+      )}
+      {directory && (
+        <>
+          <Button title="Create New Note" onPress={createNote} />
+          <FlatList
+            data={notes}
+            renderItem={renderNoteItem}
+            keyExtractor={(item) => item.name}
+          />
+          {selectedNote && (
+            <View style={{ flex: 1 }}>
+              {editMode ? (
+                <>
+                  <TextInput
+                    multiline
+                    value={selectedNote.content}
+                    onChangeText={(text) => setSelectedNote({ ...selectedNote, content: text })}
+                    style={{ flex: 1, borderWidth: 1, padding: 10 }}
+                  />
+                  <Button title="Save" onPress={saveNote} />
+                </>
+              ) : (
+                <>
+                  <Markdown>{selectedNote.content}</Markdown>
+                  <Button title="Edit" onPress={() => setEditMode(true)} />
+                </>
+              )}
+            </View>
           )}
-        </View>
+        </>
       )}
     </View>
   );

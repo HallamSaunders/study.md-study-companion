@@ -25,6 +25,7 @@ export default function LoginScreen({ navigation }: RouterProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [invalid, setInvalid] = useState(false);
 
     const signIn = async () => {
         setLoading(true);
