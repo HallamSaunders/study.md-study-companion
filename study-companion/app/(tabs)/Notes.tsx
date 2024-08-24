@@ -1,11 +1,14 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import React, { useState } from 'react'
 import Markdown from 'react-native-markdown-display'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 
 //Color schemes
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
+
+const Drawer = createDrawerNavigator();
 
 export default function Notes() {
   //Color schemes
@@ -24,5 +27,3 @@ export default function Notes() {
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({})

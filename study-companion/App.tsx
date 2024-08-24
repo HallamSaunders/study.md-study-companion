@@ -105,14 +105,26 @@ function InsideTabLayout({ navigation }: RouterProps) {
         }
       }}/>
       <Tab.Screen name="Notes" component={NotesScreen} options={{ 
-        title: "Notes",
-        headerShown: false,
+        title: "Your Notes",
+        headerShown: true,
         tabBarIcon: ({ focused }) => {
           return <Feather
             name='book-open'
             color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
             size={iconSize}  
           />
+        },
+        headerRight: () => {
+          return <Pressable onPress={() => navigation.navigate('ProfileSettings')}>
+            <Feather 
+              name='folder'
+              color={themeColors.tabIconDefault}
+              size={iconSize}
+              style={{
+                marginRight: 12
+              }}
+            />
+          </Pressable>
         }
       }}/>
       <Tab.Screen name="Timer" component={TimerScreen} options={{ 

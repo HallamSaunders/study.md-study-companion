@@ -22,12 +22,24 @@ export const readNote = async (filename: string) => {
     }
 };
 
-export const listNotes = async () => {
+export async function fetchFiles(): Promise<string[]> {
     try {
-      const files = await FileSystem.readDirectoryAsync(notesDirectory);
-      return files.filter(file => file.endsWith('.md'));
+        //Check if the directory exists
+        const dirInfo = await FileSystem.getInfoAsync(notesDirectory);
+        if (!dirInfo.exists) {
+            //Create the directory if it doesn't exist
+            await FileSystem.makeDirectoryAsync(notesDirectory, { intermediates: true });
+        }
+
+        //Read the directory content
+        const fetchedFiles = await FileSystem.readDirectoryAsync(notesDirectory);
+        if (fetchedFiles != null) {
+            return fetchedFiles;
+        } else {
+            return [];
+        }
     } catch (error) {
-      console.error("Error listing files: ", error);
-      return [];
+        console.error("Error fetching files: ", error);
+        return [];
     }
-};
+}
