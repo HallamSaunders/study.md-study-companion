@@ -184,7 +184,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
         }
       }}/>
       <Tab.Screen name="Profile" component={AnonymousProfile} options={{ 
-        title: "Anonymous",
+        title: "Anonymous User",
         headerShown: true,
         headerTitleAlign: 'center',
         tabBarIcon: ({ focused }) => {

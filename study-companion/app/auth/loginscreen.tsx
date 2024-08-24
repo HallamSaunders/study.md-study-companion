@@ -9,6 +9,7 @@ import { FIREBASE_AUTH } from '../../firebase/firebase-config';
 //Color schemes
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
+import { Line } from 'react-native-svg';
 
 interface RouterProps {
     navigation: NavigationProp<any, any>;
@@ -73,10 +74,10 @@ export default function LoginScreen({ navigation }: RouterProps) {
                     color: themeColors.text
                 }}></TextInput>
             {!loading ? (
-                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '80%' }}>
                     <Pressable onPress={signIn}
                         style={{
-                            width: '40%',
+                            width: '50%',
                             height: 40,
                             borderRadius: 8,
                             paddingHorizontal: 10,
@@ -103,7 +104,8 @@ export default function LoginScreen({ navigation }: RouterProps) {
                         <Text style={{
                             fontSize: 14,
                             color: themeColors.text,
-                        }}>Continue without an account? Click here!</Text>
+                            textAlign: 'center',
+                        }}>Just want to make notes? Click here to continue without an account.</Text>
                     </Pressable>
                 </View>
             ) : (
