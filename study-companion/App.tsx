@@ -171,7 +171,7 @@ function InsideTabLayoutAnon({ navigation }: RouterProps) {
   const iconSize: number = 28;
 
   return (
-    <Tab.Navigator initialRouteName="Timer" screenOptions={{ tabBarShowLabel: false }}>
+    <Tab.Navigator initialRouteName="Profile" screenOptions={{ tabBarShowLabel: false }}>
       <Tab.Screen name="Notes" component={NotesScreen} options={{ 
         title: "Notes",
         headerShown: false,

@@ -1,11 +1,27 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useState } from 'react'
+import Markdown from 'react-native-markdown-display'
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+//Color schemes
+import Colors from '../../constants/Colors';
+import { useColorScheme } from '../../components/useColorScheme';
 
 export default function Notes() {
+  //Color schemes
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+
+  //Safe area insets hook
+  const insets = useSafeAreaInsets();
+
+  //Handle markdown rendering for selected file
+  const [content, setContent] = useState('');
+
   return (
-    <View>
-      <Text>N</Text>
-    </View>
+    <ScrollView>
+      <Markdown>{content}</Markdown>
+    </ScrollView>
   )
 }
 
