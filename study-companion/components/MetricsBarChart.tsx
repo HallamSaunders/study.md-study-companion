@@ -12,6 +12,7 @@ import { useColorScheme } from './useColorScheme';
 import Colors from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { sqliteManager } from '../sqlite/sqlite-config';
 
 interface DailyTotal {
     time: number,
@@ -90,6 +91,22 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
     }, []);
     
     const chartWidth = Dimensions.get('window').width * 0.8;
+
+    const [sessions, setSessions] = useState<any[]>([]);
+
+    useEffect(() => {
+        const loadSessions = async () => {
+            try {
+                const result = await sqliteManager.getSessions();
+                setSessions(result);
+                console.log(result);
+            } catch (error) {
+                console.error("Error loading sessions:", error);
+            }
+        };
+
+        loadSessions();
+    }, []);
 
     return (
         <View>

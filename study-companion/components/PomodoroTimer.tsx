@@ -7,10 +7,11 @@ import Colors from '../constants/Colors';
 
 import { Feather } from '@expo/vector-icons';
 
-//Firestore refs
+//Firestore and SQLite imports
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebase-config';
 import { getUserDocID } from '../firebase/databaseCalls';
+import { sqliteManager } from '../sqlite/sqlite-config';
 
 interface sessionData {
     time: number,
@@ -110,7 +111,8 @@ const PomodoroTimer = () => {
         if (!(totalTime === 0)) {
             
             setLoading(true);
-            //Write data to user/{uid}/sessions
+
+            //Write data to user/{uid}/sessions FIREBASE
             try {
                 const sessionData: sessionData = {
                     time: totalTime,
@@ -133,6 +135,18 @@ const PomodoroTimer = () => {
                 setLoading(false);
             } catch (error) {
                 console.error("Error writing session data: ", error);
+            }
+
+            //Write data to SQLite database
+            try {
+                await sqliteManager.insertSession(totalTime, totalBlocks, new Date().toISOString(), 'pomodoro');
+
+                //Reset total time
+                setCompletedBlocks(0);
+                setTotalTime(0);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error writing session data: ", error);     
             }
         }
     }
