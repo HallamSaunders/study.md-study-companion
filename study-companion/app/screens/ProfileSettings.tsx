@@ -7,9 +7,10 @@ import { NavigationProp } from '@react-navigation/native';
 import { FIREBASE_AUTH } from '../../firebase/firebase-config'
 import { onAuthStateChanged, User } from 'firebase/auth';
 
-//Color schemes
+//Color schemes and insets
 import Colors from '../../constants/Colors';
 import { useColorScheme } from '../../components/useColorScheme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,22 +24,62 @@ function UserSettings() {
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   
   return (
-    <Pressable onPress={() => FIREBASE_AUTH.signOut()}
-      style={{
+    <View style={{
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
+    }}>
+      <Pressable onPress={() => FIREBASE_AUTH.signOut()}
+        style={{
           width: '80%',
           height: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'transparent',
-          borderColor: themeColors.borderAlert,
-          borderWidth: 1,
           borderRadius: 8,
-        }}>
-      <Text style={{
-        color: themeColors.textAlert,
-        fontSize: 14
-      }}>Sign Out</Text>
-    </Pressable>
+          paddingHorizontal: 10,
+          backgroundColor: themeColors.tint,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: 12
+          }}>
+        <Text style={{
+          color: themeColors.text,
+          fontSize: 14
+        }}>Perform Cloud Sync</Text>
+      </Pressable>
+      <Pressable onPress={() => FIREBASE_AUTH.signOut()}
+        style={{
+            width: '80%',
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+            borderColor: themeColors.borderAlert,
+            borderWidth: 1,
+            borderRadius: 8,
+            marginBottom: 12
+          }}>
+        <Text style={{
+          color: themeColors.textAlert,
+          fontSize: 14
+        }}>Sign Out</Text>
+      </Pressable>
+      <Pressable onPress={() => FIREBASE_AUTH.signOut()}
+        style={{
+            width: '80%',
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+            borderColor: themeColors.borderAlert,
+            borderWidth: 1,
+            borderRadius: 8,
+          }}>
+        <Text style={{
+          color: themeColors.textAlert,
+          fontSize: 14
+        }}>Delete All User Data</Text>
+      </Pressable>
+    </View>
   )
 }
 
@@ -48,26 +89,56 @@ function UserSettingsAnon({ navigation }: RouterProps) {
   const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
   
   return (
-    <Pressable onPress={() => navigation.navigate("LoginScreen")}
-      style={{
-          width: '80%',
-          height: 40,
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'transparent',
-          borderColor: themeColors.borderAlert,
-          borderWidth: 1,
-          borderRadius: 8,
-        }}>
-      <Text style={{
-        color: themeColors.textAlert,
-        fontSize: 14
-      }}>Sign Out</Text>
-    </Pressable>
+    <View style={{
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column'
+    }}>
+      <Pressable onPress={() => navigation.navigate("LoginScreen")}
+        style={{
+            width: '80%',
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+            borderColor: themeColors.borderAlert,
+            borderWidth: 1,
+            borderRadius: 8,
+          }}>
+        <Text style={{
+          color: themeColors.textAlert,
+          fontSize: 14
+        }}>Delete All User Data (irreversible)</Text>
+      </Pressable>
+      <Pressable onPress={() => navigation.navigate("LoginScreen")}
+        style={{
+            width: '80%',
+            height: 40,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'transparent',
+            borderColor: themeColors.borderAlert,
+            borderWidth: 1,
+            borderRadius: 8,
+          }}>
+        <Text style={{
+          color: themeColors.textAlert,
+          fontSize: 14
+        }}>Sign Out</Text>
+      </Pressable>
+    </View>
   )
 }
 
 export default function ProfileSettings({ navigation }: RouterProps) {
+  //Spacing
+  const insets = useSafeAreaInsets();
+  
+  //Color schemes
+  const colorScheme = useColorScheme();
+  const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
+
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -84,10 +155,13 @@ export default function ProfileSettings({ navigation }: RouterProps) {
 
   return (
     <View style={{
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      flexDirection: 'column'
+      backgroundColor: themeColors.background,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+      height: "100%",
+      width: "100%",
     }}>
       { user ? (
         <UserSettings />
