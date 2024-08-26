@@ -1,12 +1,9 @@
 import * as SQLite from 'expo-sqlite';
 
-//Define the Session type
-interface Session {
-  id?: number;
-  blocks: number;
-  time: number;
-  timestamp: string;
-  type: string;
+//Define the WeeklyDataItem type
+export interface WeeklyDataItem {
+    date: string;
+    time: number;
 }
 
 class SQLiteManager {
@@ -29,7 +26,7 @@ class SQLiteManager {
     private async init() {
         this.db = await SQLite.openDatabaseAsync('sessions.db');
         await this.createSessionsTable();
-        await this.insertTestData();
+        //await this.insertTestData();
     }
 
     // Create the sessions table if it doesn't exist
@@ -82,6 +79,69 @@ class SQLiteManager {
         if (!this.db) return [];
         const allRows = await this.db.getAllAsync("SELECT * FROM sessions");
         return allRows;
+    }
+
+    //Retrieve all session records from previous 7 days
+    public async getSessionsPastWeek() {
+        if (!this.db) return [];
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const sevenDaysAgoTimestamp = sevenDaysAgo.toISOString();
+
+        const query = `
+            SELECT * FROM sessions 
+            WHERE timestamp >= ? 
+            ORDER BY timestamp DESC
+        `;
+
+        try {
+            const result = await this.db.getAllAsync(query, [sevenDaysAgoTimestamp]);
+            return result;
+        } catch (error) {
+            console.error('Error fetching sessions from past week:', error);
+            return [];
+        }
+    }
+
+    //Process the data from getSessionsPastWeek
+    public processWeeklyData(sessions: any[]): WeeklyDataItem[] {
+        //Get the date 7 days ago
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 because we want to include today
+        sevenDaysAgo.setHours(0, 0, 0, 0); // Set to start of day
+
+        //Initialize an object to hold data for all 7 days
+        const allDaysData: { [key: string]: number } = {};
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(sevenDaysAgo);
+            date.setDate(date.getDate() + i);
+            allDaysData[this.formatDate(date)] = 0;
+        }
+
+        //Process sessions
+        sessions.forEach(session => {
+            const date = new Date(session.timestamp);
+            const dayKey = this.formatDate(date);
+            const time = session.time || 0;
+
+            if (allDaysData.hasOwnProperty(dayKey)) {
+                allDaysData[dayKey] += time;
+            }
+        });
+
+        //Convert to required format
+        return Object.entries(allDaysData).map(([date, time]) => ({
+            date,
+            time
+        }));
+    }
+
+    private formatDate(date: Date): string {
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        //return `${day}/${month}`;
+        return day;
     }
 }
 

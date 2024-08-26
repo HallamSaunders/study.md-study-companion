@@ -31,56 +31,17 @@ interface RouterProps {
     navigation: NavigationProp<any, any>;
 }
 
+export interface WeeklyDataItem {
+    date: string;
+    time: number;
+}
+
 const MetricsBarChart = ({ navigation }: RouterProps) => {   
     //Color schemes
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
-    const [dailyTotals, setDailyTotals] = useState<DailyTotal[]>([]);
-    const [weeklyData, setWeeklyData] = useState<weeklyData>();
-
-    //Rate limiting to stop reads from increasing constantly
-    const [rateLimit, setRateLimit] = useState<number>(0);
-
     const [loading, setLoading] = useState(false);
-
-    //Fetch data for last 7 days
-    const fetchData = async () => {
-        if (rateLimit === 0) {
-            setLoading(true);
-            try {
-                const weeklyData: weeklyData = await getLastSevenDaysSessionTotals();
-                setWeeklyData(weeklyData);
-                setDailyTotals(weeklyData.dailyTotals);
-            } catch (error) {
-                console.error('Error fetching daily totals:', error);
-            }
-            //Set refresh rate limit to 2 minutes
-            setRateLimit(120);
-            setTimeout(() => setRateLimit(0), 120000);
-        }
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        //This is called whenever the component mounts
-        if (dailyTotals.length === 0 || weeklyData === undefined) {
-            fetchData();
-        }
-    }, []);
-
-    //Sort data by date, trim down to useful dates, and convert time to mins
-    const sortedTotals = [...dailyTotals].sort((a, b) => a.date.toMillis() - b.date.toMillis());
-    const data = {
-        labels: sortedTotals.map(total => total.date.toDate().toLocaleDateString('en-US', { weekday: 'short' }).substring(0,1)),
-        datasets: [{
-            data: sortedTotals.map(total => total.time / 60) //Convert time to minutes
-        }]
-    };
-
-    const updateGraph = async () => {
-        fetchData();
-    }
 
     //Handle width and height of chart
     const [chartDimensions, setChartDimensions] = useState({ width: 0, height: 0 });
@@ -92,21 +53,39 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
     
     const chartWidth = Dimensions.get('window').width * 0.8;
 
-    const [sessions, setSessions] = useState<any[]>([]);
+    //Handle data from SQLite not Firestore
+    const [sessionsPastWeek, setSessionsPastWeek] = useState<any[]>([]);
+    const [fullWeekData, setFullWeekData] = useState<WeeklyDataItem[]>([]);
+
+    const loadSessions = async () => {
+        setLoading(true);
+        try {
+            const result = await sqliteManager.getSessionsPastWeek();
+            setSessionsPastWeek(result);
+            const resultProcessed = sqliteManager.processWeeklyData(result);
+            setFullWeekData(resultProcessed);
+            console.log(resultProcessed);
+        } catch (error) {
+            console.error("Error loading sessions:", error);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
-        const loadSessions = async () => {
-            try {
-                const result = await sqliteManager.getSessions();
-                setSessions(result);
-                console.log(result);
-            } catch (error) {
-                console.error("Error loading sessions:", error);
-            }
-        };
-
         loadSessions();
     }, []);
+
+    const updateGraph = async () => {
+        loadSessions();
+    }
+
+    //Sort data by date, trim down to useful dates, and convert time to mins
+    const data = {
+        labels: fullWeekData.map(dataItem => dataItem.date),
+        datasets: [{
+            data: fullWeekData.map(dataItem => dataItem.time / 60) //Convert time to minutes
+        }]
+    };
 
     return (
         <View>
@@ -192,7 +171,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
                                 fontSize: 20,
                                 color: themeColors.text
                             }}>Your weekly stats</Text>
-                        <View>
+                        {/*<View>
                             {!(weeklyData === undefined) ? (
                                 <View>
                                     <Text style={{
@@ -238,7 +217,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
                                         </Text>
                                 </View>
                             )}
-                        </View>
+                        </View>*/}
                         <Pressable onPress={() =>  navigation.navigate("Timeline")}
                             style={{
                                 height: 40,

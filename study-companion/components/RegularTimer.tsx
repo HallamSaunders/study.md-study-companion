@@ -9,6 +9,7 @@ import Colors from '../constants/Colors';
 import { addDoc, collection, Timestamp } from 'firebase/firestore';
 import { FIREBASE_AUTH, FIRESTORE_DB } from '../firebase/firebase-config';
 import { getUserDocID } from '../firebase/databaseCalls';
+import { sqliteManager } from '../sqlite/sqlite-config';
 
 interface sessionData {
     time: number,
@@ -61,9 +62,9 @@ const RegularTimer = () => {
     //Handle logic for saving stats to database
     const logSessionStats = async (totalTime: number) => {
         if (!(totalTime === 0)) {
-            
             setLoading(true);
-            //Write data to user/{uid}/sessions
+
+            //Write data to user/{uid}/sessions FIREBASE
             try {
                 const sessionData: sessionData = {
                     time: totalTime,
@@ -86,6 +87,18 @@ const RegularTimer = () => {
                 setLoading(false);
             } catch (error) {
                 console.error("Error writing session data: ", error);
+            }
+
+            //Write session data SQLite
+            try {
+                await sqliteManager.insertSession(totalTime, 0, new Date().toISOString(), "timer");
+
+                //Reset total time
+                setTotalTime(0);
+                resetStopwatch();
+                setLoading(false);
+            } catch (error) {
+                console.error("Error writing session data to SQLite: ", error);
             }
         }
     }
