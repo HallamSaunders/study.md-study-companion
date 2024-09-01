@@ -29,7 +29,7 @@ class SQLiteManager {
         //await this.insertTestData();
     }
 
-    // Create the sessions table if it doesn't exist
+    //Create the sessions table if it doesn't exist
     private async createSessionsTable() {
         if (!this.db) return;
 
