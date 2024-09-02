@@ -34,6 +34,7 @@ interface RouterProps {
 export interface WeeklyDataItem {
     date: string;
     time: number;
+    blocks: number;
 }
 
 const MetricsBarChart = ({ navigation }: RouterProps) => {   
@@ -56,14 +57,37 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
     //Handle data from SQLite not Firestore
     const [sessionsPastWeek, setSessionsPastWeek] = useState<any[]>([]);
     const [fullWeekData, setFullWeekData] = useState<WeeklyDataItem[]>([]);
+    const [totalTime, setTotalTime] = useState(0);
+    const [averageTime, setAverageTime] = useState(0);
+    const [weeklyBlocks, setWeeklyBlocks] = useState(0);
+
+    const calculateAverage = () => {
+        let weeklyTotal: number = 0;
+        fullWeekData.forEach(day => {
+            weeklyTotal += day.time;
+        });
+        setTotalTime(weeklyTotal);
+        setAverageTime(weeklyTotal / 7);
+    }
+
+    const calculateTotalBlocks = () => {
+        let total: number = 0;
+        fullWeekData.forEach(day => {
+            total += day.blocks;
+        });
+        setWeeklyBlocks(total);
+    }
 
     const loadSessions = async () => {
         setLoading(true);
         try {
             const result = await sqliteManager.getSessionsPastWeek();
             setSessionsPastWeek(result);
-            const resultProcessed = sqliteManager.processWeeklyData(result);
+            console.log(result);
+            const resultProcessed = sqliteManager.processWeeklyData(result) as WeeklyDataItem[];
             setFullWeekData(resultProcessed);
+            calculateAverage();
+            calculateTotalBlocks();
             console.log(resultProcessed);
         } catch (error) {
             console.error("Error loading sessions:", error);
@@ -171,28 +195,39 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
                                 fontSize: 20,
                                 color: themeColors.text
                             }}>Your weekly stats</Text>
-                        {/*<View>
-                            {!(weeklyData === undefined) ? (
+                        <View>
+                            {!(fullWeekData === undefined) ? (
                                 <View>
                                     <Text style={{
                                         fontSize: 14,
                                         color: themeColors.text,
                                         marginTop: 12,
                                         }}>
-                                        &middot; You averaged {Math.round(weeklyData.weeklyAverage / 60)} minutes of study per day.
+                                        &middot; You averaged {Math.round(averageTime)} minutes of study per day.
                                     </Text>
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: themeColors.text
-                                        }}>
-                                        &middot; You completed {Math.round(weeklyData.totalBlocks)} Pomodoro study blocks.
-                                    </Text>
-                                    <Text style={{
-                                        fontSize: 14,
-                                        color: themeColors.text
-                                        }}>
-                                        &middot; That means the average length of a Pomodoro study block was {Math.round(weeklyData!.avgTimePerBlock / 60)} minutes!
-                                    </Text>
+                                    {(weeklyBlocks > 0) ? (
+                                        <View>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                color: themeColors.text
+                                                }}>
+                                                &middot; You completed {Math.round(weeklyBlocks)} Pomodoro study blocks.
+                                            </Text>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                color: themeColors.text
+                                                }}>
+                                                &middot; That means the average length of a Pomodoro study block was {Math.round(totalTime / weeklyBlocks / 60)} minutes!
+                                            </Text>
+                                        </View>
+                                    ) : (
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text
+                                            }}>
+                                            &middot; You haven't completed any Pomodoro study blocks yet this week, why not try now?
+                                        </Text>
+                                    )}
                                 </View>
                             ) : (
                                 <View>
@@ -217,7 +252,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
                                         </Text>
                                 </View>
                             )}
-                        </View>*/}
+                        </View>
                         <Pressable onPress={() =>  navigation.navigate("Timeline")}
                             style={{
                                 height: 40,

@@ -108,15 +108,17 @@ class SQLiteManager {
     public processWeeklyData(sessions: any[]): WeeklyDataItem[] {
         //Get the date 7 days ago
         const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 because we want to include today
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); //-6 because we want to include today
         sevenDaysAgo.setHours(0, 0, 0, 0); // Set to start of day
 
         //Initialize an object to hold data for all 7 days
-        const allDaysData: { [key: string]: number } = {};
+        const allDaysData: { [key: string]: { time: number; blocks: number; } } = {};
+        
+        //Set time and blocks initial values to 0 for every day
         for (let i = 0; i < 7; i++) {
             const date = new Date(sevenDaysAgo);
             date.setDate(date.getDate() + i);
-            allDaysData[this.formatDate(date)] = 0;
+            allDaysData[this.formatDate(date)] = { time: 0, blocks: 0};
         }
 
         //Process sessions
@@ -124,16 +126,20 @@ class SQLiteManager {
             const date = new Date(session.timestamp);
             const dayKey = this.formatDate(date);
             const time = session.time || 0;
+            const blocks = session.blocks || 0;
 
+            //Update session time and blocks count
             if (allDaysData.hasOwnProperty(dayKey)) {
-                allDaysData[dayKey] += time;
+                allDaysData[dayKey].time += time;
+                allDaysData[dayKey].blocks += blocks;
             }
         });
 
         //Convert to required format
-        return Object.entries(allDaysData).map(([date, time]) => ({
+        return Object.entries(allDaysData).map(([date, { time, blocks }]) => ({
             date,
-            time
+            time,
+            blocks
         }));
     }
 
