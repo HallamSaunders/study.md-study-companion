@@ -17,7 +17,7 @@ import { sqliteManager } from '../sqlite/sqlite-config';
 interface DailyTotal {
     time: number,
     blocks: number,
-    date: Timestamp
+    date: string
 }
 
 interface weeklyData {
@@ -29,12 +29,6 @@ interface weeklyData {
 
 interface RouterProps {
     navigation: NavigationProp<any, any>;
-}
-
-export interface WeeklyDataItem {
-    date: string;
-    time: number;
-    blocks: number;
 }
 
 const MetricsBarChart = ({ navigation }: RouterProps) => {   
@@ -56,7 +50,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
 
     //Handle data from SQLite not Firestore
     const [sessionsPastWeek, setSessionsPastWeek] = useState<any[]>([]);
-    const [fullWeekData, setFullWeekData] = useState<WeeklyDataItem[]>([]);
+    const [fullWeekData, setFullWeekData] = useState<DailyTotal[]>([]);
     const [totalTime, setTotalTime] = useState(0);
     const [averageTime, setAverageTime] = useState(0);
     const [weeklyBlocks, setWeeklyBlocks] = useState(0);
@@ -67,7 +61,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
             weeklyTotal += day.time;
         });
         setTotalTime(weeklyTotal);
-        setAverageTime(weeklyTotal / 7);
+        setAverageTime(weeklyTotal / 7 / 60);
     }
 
     const calculateTotalBlocks = () => {
@@ -84,7 +78,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
             const result = await sqliteManager.getSessionsPastWeek();
             setSessionsPastWeek(result);
             console.log(result);
-            const resultProcessed = sqliteManager.processWeeklyData(result) as WeeklyDataItem[];
+            const resultProcessed = sqliteManager.processWeeklyData(result) as DailyTotal[];
             setFullWeekData(resultProcessed);
             calculateAverage();
             calculateTotalBlocks();
@@ -269,7 +263,7 @@ const MetricsBarChart = ({ navigation }: RouterProps) => {
                                     fontSize: 14,
                                     color: themeColors.text,
                                     marginRight: 12
-                                }}>View weekly timeline</Text>
+                                }}>View timeline</Text>
                                 <FontAwesome6 name='timeline'
                                     color={themeColors.text}
                                     size={14}/>

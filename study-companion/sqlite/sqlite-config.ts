@@ -1,8 +1,8 @@
 import * as SQLite from 'expo-sqlite';
 
-//Define the WeeklyDataItem type
-export interface WeeklyDataItem {
+export interface DailyTotal {
     date: string;
+    blocks: number;
     time: number;
 }
 
@@ -75,10 +75,14 @@ class SQLiteManager {
     }
 
     //Retrieve all session records
-    public async getSessions() {
+    public async getSessions(): Promise<DailyTotal[]> {
         if (!this.db) return [];
-        const allRows = await this.db.getAllAsync("SELECT * FROM sessions");
-        return allRows;
+        const allRows = await this.db.getAllAsync("SELECT * FROM sessions ORDER BY date(timestamp) ASC");
+        return allRows.map((row: any) => ({
+            date: row.date,
+            blocks: row.blocks,
+            time: row.time
+        }));
     }
 
     //Retrieve all session records from previous 7 days
@@ -105,7 +109,7 @@ class SQLiteManager {
     }
 
     //Process the data from getSessionsPastWeek
-    public processWeeklyData(sessions: any[]): WeeklyDataItem[] {
+    public processWeeklyData(sessions: any[]): DailyTotal[] {
         //Get the date 7 days ago
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); //-6 because we want to include today
