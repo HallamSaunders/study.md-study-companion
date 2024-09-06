@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
 
@@ -18,7 +18,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 
     const [selectedDates, setSelectedDates] = useState<{ [date: string]: { selected: boolean } }>({});
     const [dragStartDate, setDragStartDate] = useState<string | null>(null);
-    
+    const [multipleDates, setMultipleDates] = useState(false);
+    const [zeroDates, setZeroDates] = useState(true);
+
     useEffect(() => {
         (async () => {
         const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
@@ -29,12 +31,31 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         })();
     }, []);
 
+    //Update multipleDates to match how many dates are currently selected.
+    useEffect(() => {
+        //Filter selectedDates down to an array of just the dates
+        const selectedCount = Object.values(selectedDates).filter(date => date.selected).length;
+        console.log(selectedCount);
+        if (selectedCount >= 0) {
+            if (selectedCount === 0) {
+                setZeroDates(true);
+                setMultipleDates(false);
+            } else if (selectedCount === 1) {
+                setMultipleDates(false);
+                setZeroDates(false);
+            } else {
+                setMultipleDates(true);
+                setZeroDates(false);
+            }
+        }
+    }, [selectedDates])
+
     const handleDayPress = (day: DateData) => {
         const newSelectedDates = { ...selectedDates };
         if (newSelectedDates[day.dateString]) {
-        delete newSelectedDates[day.dateString];
+            delete newSelectedDates[day.dateString];
         } else {
-        newSelectedDates[day.dateString] = { selected: true };
+            newSelectedDates[day.dateString] = { selected: true };
         }
         setSelectedDates(newSelectedDates);
         onSelectDates(Object.keys(newSelectedDates));
@@ -72,6 +93,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 
     return (
         <View>
+            {/* RENDER CALENDAR */}
             <Calendar {...calendarProps} 
                 theme={{
                     backgroundColor: themeColors.background,
@@ -97,6 +119,35 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                     borderRadius: 8
                 }}
             />
+
+            {/* RENDER EVENT ENTRY */}
+            { !zeroDates ? (
+                <View>
+                    { !multipleDates ? (
+                        <View>
+                            <Text style={{
+                                color: themeColors.text,
+                                fontSize: 14,
+                                marginBottom: 12,
+                                width: '80%',
+                                textAlign: 'center'
+                                }}>Only one date selected.</Text>
+                        </View>
+                    ) : (
+                        <View>
+                            <Text style={{
+                                color: themeColors.text,
+                                fontSize: 14,
+                                marginBottom: 12,
+                                width: '80%',
+                                textAlign: 'center'
+                                }}>Multiple dates selected.</Text>
+                        </View>
+                    )}
+                </View>
+            ) : (
+                <View></View>
+            )}
         </View>
     );
 };
