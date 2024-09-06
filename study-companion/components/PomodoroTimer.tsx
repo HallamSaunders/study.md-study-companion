@@ -243,7 +243,7 @@ const PomodoroTimer = () => {
     };
   
     //Get width for borders
-    const [containerWidth, setContainerWidth] = useState(0);
+    const [containerWidth, setContainerWidth] = useState(250);
     const [percentFilled, setPercentageFilled] = useState(0);
   
     const calculatePercentageFilled = () => {
@@ -261,10 +261,10 @@ const PomodoroTimer = () => {
         return (1-percentFilled) * containerWidth;
     };
   
-    const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
+    /*const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
         const { width } = event.nativeEvent.layout;
         setContainerWidth(width);
-    };
+    };*/
   
     useEffect(() => {
         calculatePercentageFilled();
@@ -272,7 +272,7 @@ const PomodoroTimer = () => {
 
     return (
         <View>
-            <View onLayout={handleLayout} style={{  
+            <View style={{  
                     width: '100%',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -345,11 +345,12 @@ const PomodoroTimer = () => {
                 <View style={{
                     justifyContent: 'center',
                     alignItems: 'center',
+                    width: 250
                     }}>
-                        <Text style={{
-                            fontSize: 60,
-                            color: themeColors.text,
-                            }}>{formatTime(timer)}</Text>
+                    <Text style={{
+                        fontSize: 60,
+                        color: themeColors.text,
+                        }}>{formatTime(timer)}</Text>
                     <View style={{
                         flexDirection: 'row',
                         }}>

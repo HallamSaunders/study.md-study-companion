@@ -5,12 +5,14 @@ import React, { useEffect, useState } from 'react'
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar } from 'react-native-calendars';
 import CalendarPageCalendar from '../../components/CalendarPageCalendar';
+import CalendarComponent from '../../components/CalendarComponent';
+import CreateCalendarEvent from '../../components/CreateCalendarEvent';
 
 //Color schemes
 import { useColorScheme } from '../../components/useColorScheme';
 import Colors from '../../constants/Colors';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import CalendarComponent from '../../components/CalendarComponent';
 
 export default function CalendarScreen() {
   //Color schemes and setup
@@ -31,7 +33,7 @@ export default function CalendarScreen() {
 
   const handleSelectDates = (dates: string[]) => {
     console.log('Selected dates:', dates);
-    // Do something with the selected dates
+    //Do something with the selected dates
   };
 
   return (
@@ -42,6 +44,7 @@ export default function CalendarScreen() {
       paddingRight: insets.right,
     }}>
       <CalendarComponent onSelectDates={handleSelectDates}/>
+      {/*<CreateCalendarEvent />*/}
     </View>
   )
 }

@@ -180,6 +180,7 @@ const RegularTimer = () => {
     const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
         const { width } = event.nativeEvent.layout;
         setContainerWidth(width);
+
     };
   
     useEffect(() => {
@@ -204,11 +205,12 @@ const RegularTimer = () => {
                 <View onLayout={handleLayout} style={{
                     justifyContent: 'center',
                     alignItems: 'center',
+                    width: 250
                     }}>
-                        <Text style={{
-                            fontSize: 60,
-                            color: themeColors.text,
-                            }}>{formatTime(timer)}</Text>
+                    <Text style={{
+                        fontSize: 60,
+                        color: themeColors.text,
+                        }}>{formatTime(timer)}</Text>
                     <View style={{
                         flexDirection: 'row',
                         }}>
@@ -216,13 +218,11 @@ const RegularTimer = () => {
                             borderBottomColor: themeColors.tint,
                             borderBottomWidth: 3,
                             width: getWidthInPixels(),
-                            maxWidth: '100%'
                             }}></View>
                         <View style={{
                             borderBottomColor: themeColors.subtleText,
                             borderBottomWidth: 3,
                             width: getAntiWidthInPixels(),
-                            maxWidth: '100%'
                             }}></View>
                     </View>
                 </View>

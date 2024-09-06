@@ -28,7 +28,7 @@ const Timeline = () => {
         try {
             const result = await sqliteManager.getSessionsPastWeek();
             setSessions(result as DailyTotal[]);
-            console.log(result);
+            console.log("All previous sessions: ", result);
         } catch (error) {
             console.error("Error loading sessions:", error);
         }
