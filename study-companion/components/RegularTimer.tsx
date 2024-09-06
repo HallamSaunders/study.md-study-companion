@@ -161,7 +161,7 @@ const RegularTimer = () => {
     };
   
     //Get width for borders
-    const [containerWidth, setContainerWidth] = useState(0);
+    const [containerWidth, setContainerWidth] = useState(250);
     const [percentFilled, setPercentageFilled] = useState(0);
   
     const calculatePercentageFilled = () => {
@@ -177,11 +177,10 @@ const RegularTimer = () => {
         return (1-percentFilled) * containerWidth;
     };
   
-    const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
+    /*const handleLayout = (event: { nativeEvent: { layout: { width: any; }; }; }) => {
         const { width } = event.nativeEvent.layout;
         setContainerWidth(width);
-
-    };
+    };*/
   
     useEffect(() => {
         calculatePercentageFilled();
@@ -202,7 +201,7 @@ const RegularTimer = () => {
                 }}>
 
                 {/* RENDER TIMER AND PROGRESS BAR */}
-                <View onLayout={handleLayout} style={{
+                <View style={{
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: 250
@@ -218,11 +217,13 @@ const RegularTimer = () => {
                             borderBottomColor: themeColors.tint,
                             borderBottomWidth: 3,
                             width: getWidthInPixels(),
+                            maxWidth: 250
                             }}></View>
                         <View style={{
                             borderBottomColor: themeColors.subtleText,
                             borderBottomWidth: 3,
                             width: getAntiWidthInPixels(),
+                            maxWidth: 250
                             }}></View>
                     </View>
                 </View>
