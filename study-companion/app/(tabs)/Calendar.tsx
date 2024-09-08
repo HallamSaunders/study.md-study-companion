@@ -44,7 +44,6 @@ export default function CalendarScreen() {
       paddingRight: insets.right,
     }}>
       <CalendarComponent onSelectDates={handleSelectDates}/>
-      {/*<CreateCalendarEvent />*/}
     </View>
   )
 }

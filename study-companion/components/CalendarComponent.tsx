@@ -17,7 +17,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
     const [selectedDates, setSelectedDates] = useState<{ [date: string]: { selected: boolean } }>({});
-    const [dragStartDate, setDragStartDate] = useState<string | null>(null);
     const [multipleDates, setMultipleDates] = useState(false);
     const [zeroDates, setZeroDates] = useState(true);
 
@@ -61,32 +60,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         onSelectDates(Object.keys(newSelectedDates));
     };
 
-    const handleDayLongPress = (day: DateData) => {
-        setDragStartDate(day.dateString);
-    };
-
-    const handleDayDrag = (day: DateData) => {
-        if (dragStartDate) {
-            const startDate = new Date(dragStartDate);
-            const endDate = new Date(day.dateString);
-            const newSelectedDates = { ...selectedDates };
-
-            const currentDate = new Date(startDate);
-            while (currentDate <= endDate) {
-                const dateString = currentDate.toISOString().split('T')[0];
-                newSelectedDates[dateString] = { selected: true };
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-
-            setSelectedDates(newSelectedDates);
-            onSelectDates(Object.keys(newSelectedDates));
-        }
-    };
-
     const calendarProps: CalendarProps = {
         markedDates: selectedDates,
         onDayPress: handleDayPress,
-        onDayLongPress: handleDayLongPress,
         //onDayPress: dragStartDate ? handleDayDrag : handleDayPress,
         markingType: 'multi-dot',
     };
@@ -121,33 +97,47 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
             />
 
             {/* RENDER EVENT ENTRY */}
-            { !zeroDates ? (
-                <View>
-                    { !multipleDates ? (
-                        <View>
-                            <Text style={{
-                                color: themeColors.text,
-                                fontSize: 14,
-                                marginBottom: 12,
-                                width: '80%',
-                                textAlign: 'center'
-                                }}>Only one date selected.</Text>
-                        </View>
-                    ) : (
-                        <View>
-                            <Text style={{
-                                color: themeColors.text,
-                                fontSize: 14,
-                                marginBottom: 12,
-                                width: '80%',
-                                textAlign: 'center'
-                                }}>Multiple dates selected.</Text>
-                        </View>
-                    )}
-                </View>
-            ) : (
-                <View></View>
-            )}
+            <View style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                margin: 12,
+                borderWidth: 1,
+                borderColor: themeColors.borderSubtle,
+                borderRadius: 8,
+                padding: 12
+            }}>
+                { !zeroDates ? (
+                    <View>
+                        { !multipleDates ? (
+                            <View>
+                                <Text style={{
+                                    color: themeColors.text,
+                                    fontSize: 14,
+                                    textAlign: 'center'
+                                    }}>One date selected.</Text>
+                            </View>
+                        ) : (
+                            <View>
+                                <Text style={{
+                                    color: themeColors.text,
+                                    fontSize: 14,
+                                    textAlign: 'center'
+                                    }}>Multiple dates selected.</Text>
+                            </View>
+                        )}
+                    </View>
+                ) : (
+                    <View>
+                        <Text style={{
+                            color: themeColors.subtleText,
+                            fontSize: 14,
+                            textAlign: 'center'
+                            }}>You haven't selected any dates yet,
+                                select one or more to get started with calendar events</Text>
+                    </View>
+                )}
+            </View>
         </View>
     );
 };
