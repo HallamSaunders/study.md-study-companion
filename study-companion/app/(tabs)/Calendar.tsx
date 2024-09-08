@@ -43,7 +43,7 @@ export default function CalendarScreen() {
       paddingLeft: insets.left,
       paddingRight: insets.right,
     }}>
-      <CalendarComponent onSelectDates={handleSelectDates}/>
+      <CalendarComponent onSelectDates={handleSelectDates} />
     </View>
   )
 }

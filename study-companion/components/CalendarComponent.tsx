@@ -19,14 +19,16 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [selectedDates, setSelectedDates] = useState<{ [date: string]: { selected: boolean } }>({});
     const [multipleDates, setMultipleDates] = useState(false);
     const [zeroDates, setZeroDates] = useState(true);
+    const [eventTitle, setEventTitle] = useState('');
+    const [eventDescription, setEventDescription] = useState('');
 
     useEffect(() => {
         (async () => {
-        const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
-        if (status === 'granted') {
-            const calendars = await ExpoCalendar.getCalendarsAsync(ExpoCalendar.EntityTypes.EVENT);
-            console.log('Available calendars:', calendars);
-        }
+            const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+            if (status === 'granted') {
+                const calendars = await ExpoCalendar.getCalendarsAsync(ExpoCalendar.EntityTypes.EVENT);
+                console.log('Available calendars:', calendars);
+            }
         })();
     }, []);
 
@@ -60,15 +62,73 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         onSelectDates(Object.keys(newSelectedDates));
     };
 
+    //Handle event creation
+    const handleCreateSingleDayEvent = async (
+        //Pass in information regarding timings of the event
+        isAllDay: boolean,
+        eventStart: Date,
+        eventEnd: Date,
+        eventisAllDay: boolean
+    ) => {
+        if (eventTitle && Object.keys(selectedDates).length > 0) {
+            if (eventTitle && Object.keys(selectedDates).length > 0) {
+                try {
+                    const calendar = await ExpoCalendar.getDefaultCalendarAsync();
+                    const selectedDatesList = Object.keys(selectedDates);
+    
+                    if (selectedDatesList.length === 1) {
+                        // Create a single-day event
+                        const eventDate = new Date(selectedDatesList[0]);
+                        const event = {
+                            title: eventTitle,
+                            notes: eventDescription,
+                            startDate: eventDate,
+                            endDate: eventDate,
+                            allDay: true,
+                        };
+                        await ExpoCalendar.createEventAsync(calendar.id, event);
+                        alert('Single-day event created successfully!');
+                    } else {
+                        // Create separate events for each selected date
+                        for (const date of selectedDatesList) {
+                            const eventDate = new Date(date);
+                            const event = {
+                                title: eventTitle,
+                                notes: eventDescription,
+                                startDate: eventDate,
+                                endDate: eventDate,
+                                allDay: true,
+                            };
+                            await ExpoCalendar.createEventAsync(calendar.id, event);
+                        }
+                        alert('Multiple events created successfully!');
+                    }
+    
+                    setEventTitle('');
+                    setEventDescription('');
+                    setSelectedDates({});
+                } catch (error) {
+                    console.error('Error creating event:', error);
+                    alert('Failed to create event(s). Please try again.');
+                }
+            } else {
+                alert('Please enter an event title and select at least one date.');
+            }
+        } else {
+            Alert.alert('Error', 'Please enter an event title and select at least one date.');
+        }
+    };
+
     const calendarProps: CalendarProps = {
         markedDates: selectedDates,
         onDayPress: handleDayPress,
-        //onDayPress: dragStartDate ? handleDayDrag : handleDayPress,
         markingType: 'multi-dot',
     };
 
     return (
-        <View>
+        <View style={{
+            backgroundColor: themeColors.background,
+        }}>
             {/* RENDER CALENDAR */}
             <Calendar {...calendarProps} 
                 theme={{
@@ -86,13 +146,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                     monthTextColor: themeColors.text,
                     textDayFontSize: 16,
                     textMonthFontSize: 16,
-                    textDayHeaderFontSize: 16
+                    textDayHeaderFontSize: 16,
                 }}
                 style={{
                     margin: 12,
                     borderWidth: 1,
                     borderColor: themeColors.borderSubtle,
-                    borderRadius: 8
+                    borderRadius: 8,
                 }}
             />
 
@@ -134,7 +194,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                             fontSize: 14,
                             textAlign: 'center'
                             }}>You haven't selected any dates yet,
-                                select one or more to get started with calendar events</Text>
+                                select one or more to get started with calendar events.</Text>
                     </View>
                 )}
             </View>
