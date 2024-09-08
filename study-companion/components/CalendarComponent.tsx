@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Pressable } from 'react-native';
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
 
@@ -63,12 +63,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     };
 
     //Handle event creation
-    const handleCreateSingleDayEvent = async (
+    const handleCreateEvent = async (
         //Pass in information regarding timings of the event
-        isAllDay: boolean,
-        eventStart: Date,
-        eventEnd: Date,
-        eventisAllDay: boolean
+        //isAllDay: boolean,
+        //eventStart: Date,
+        //eventEnd: Date,
+        //eventisAllDay: boolean
     ) => {
         if (eventTitle && Object.keys(selectedDates).length > 0) {
             if (eventTitle && Object.keys(selectedDates).length > 0) {
@@ -170,13 +170,42 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                 { !zeroDates ? (
                     <View>
                         { !multipleDates ? (
-                            <View>
-                                <Text style={{
-                                    color: themeColors.text,
-                                    fontSize: 14,
-                                    textAlign: 'center'
-                                    }}>One date selected.</Text>
-                            </View>
+                    <View>
+                    <Text style={[styles.text, { color: themeColors.text }]}>
+                        {!multipleDates ? 'One date selected.' : 'Multiple dates selected.'}
+                    </Text>
+                    <TextInput
+                        style={[styles.input, { color: themeColors.text, borderColor: themeColors.borderSubtle }]}
+                        placeholder="Event Title"
+                        placeholderTextColor={themeColors.subtleText}
+                        value={eventTitle}
+                        onChangeText={setEventTitle}
+                    />
+                    <TextInput
+                        style={[styles.input, { color: themeColors.text, borderColor: themeColors.borderSubtle }]}
+                        placeholder="Event Description (optional)"
+                        placeholderTextColor={themeColors.subtleText}
+                        value={eventDescription}
+                        onChangeText={setEventDescription}
+                        multiline
+                    />
+                    <Pressable onPress={handleCreateEvent}
+                        style={{
+                            width: '50%',
+                            height: 40,
+                            borderRadius: 8,
+                            paddingHorizontal: 10,
+                            backgroundColor: themeColors.tint,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginBottom: 12
+                        }}>
+                            <Text style={{
+                                fontSize: 14,
+                                color: themeColors.text,
+                            }}>Create event</Text>        
+                    </Pressable>
+                </View>
                         ) : (
                             <View>
                                 <Text style={{
@@ -203,3 +232,33 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 };
 
 export default CalendarComponent;
+
+const styles = StyleSheet.create({
+    calendar: {
+        margin: 12,
+        borderWidth: 1,
+        borderRadius: 8,
+    },
+    eventEntry: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        margin: 12,
+        borderWidth: 1,
+        borderRadius: 8,
+        padding: 12,
+    },
+    text: {
+        fontSize: 14,
+        textAlign: 'center',
+        marginBottom: 10,
+    },
+    input: {
+        width: '100%',
+        height: 40,
+        borderWidth: 1,
+        borderRadius: 4,
+        marginBottom: 10,
+        paddingHorizontal: 10,
+    },
+});
