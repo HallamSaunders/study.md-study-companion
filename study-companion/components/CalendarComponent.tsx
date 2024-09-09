@@ -128,7 +128,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     return (
         <View style={{
             backgroundColor: themeColors.background,
-        }}>
+            }}>
             {/* RENDER CALENDAR */}
             <Calendar {...calendarProps} 
                 theme={{
@@ -166,46 +166,80 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                 borderColor: themeColors.borderSubtle,
                 borderRadius: 8,
                 padding: 12
-            }}>
+                }}>
                 { !zeroDates ? (
-                    <View>
+                    <View style={{
+                        width: '100%',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <Text style={{
+                            color: themeColors.text,
+                            fontSize: 24,
+                            textAlign: 'center',
+                            marginBottom: 12,
+                        }}>Create an event.</Text>
                         { !multipleDates ? (
-                    <View>
-                    <Text style={[styles.text, { color: themeColors.text }]}>
-                        {!multipleDates ? 'One date selected.' : 'Multiple dates selected.'}
-                    </Text>
-                    <TextInput
-                        style={[styles.input, { color: themeColors.text, borderColor: themeColors.borderSubtle }]}
-                        placeholder="Event Title"
-                        placeholderTextColor={themeColors.subtleText}
-                        value={eventTitle}
-                        onChangeText={setEventTitle}
-                    />
-                    <TextInput
-                        style={[styles.input, { color: themeColors.text, borderColor: themeColors.borderSubtle }]}
-                        placeholder="Event Description (optional)"
-                        placeholderTextColor={themeColors.subtleText}
-                        value={eventDescription}
-                        onChangeText={setEventDescription}
-                        multiline
-                    />
-                    <Pressable onPress={handleCreateEvent}
-                        style={{
-                            width: '50%',
-                            height: 40,
-                            borderRadius: 8,
-                            paddingHorizontal: 10,
-                            backgroundColor: themeColors.tint,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginBottom: 12
-                        }}>
-                            <Text style={{
-                                fontSize: 14,
-                                color: themeColors.text,
-                            }}>Create event</Text>        
-                    </Pressable>
-                </View>
+                            <View style={{
+                                width: '100%',
+                                alignItems: 'center',
+                            }}>
+                                {/*<Text style={{
+                                    color: themeColors.text,
+                                    fontSize: 14,
+                                    textAlign: 'center',
+                                    marginBottom: 12, }}>
+                                    { !multipleDates ? 'One date selected.' : 'Multiple dates selected.' }
+                                </Text>*/}
+                                <TextInput
+                                    style={{
+                                        color: themeColors.text,
+                                        borderColor: themeColors.borderSubtle,
+                                        width: '100%',
+                                        height: 40,
+                                        borderWidth: 1,
+                                        borderRadius: 8,
+                                        marginBottom: 12,
+                                        paddingHorizontal: 10,
+                                    }}
+                                    placeholder="Event Title"
+                                    placeholderTextColor={themeColors.subtleText}
+                                    value={eventTitle}
+                                    onChangeText={setEventTitle}
+                                />
+                                <TextInput
+                                    style={{
+                                        color: themeColors.text,
+                                        borderColor: themeColors.borderSubtle,
+                                        width: '100%',
+                                        height: 40,
+                                        borderWidth: 1,
+                                        borderRadius: 8,
+                                        marginBottom: 12,
+                                        paddingHorizontal: 10,
+                                    }}
+                                    placeholder="Event Description"
+                                    placeholderTextColor={themeColors.subtleText}
+                                    value={eventDescription}
+                                    onChangeText={setEventDescription}
+                                />
+                                <Pressable onPress={handleCreateEvent}
+                                    style={{
+                                        width: '80%',
+                                        height: 40,
+                                        borderRadius: 8,
+                                        backgroundColor: themeColors.tint,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        marginBottom: 12
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 14,
+                                            color: themeColors.text,
+                                        }}>Create event</Text>        
+                                </Pressable>
+                            </View>
                         ) : (
                             <View>
                                 <Text style={{
@@ -232,33 +266,3 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 };
 
 export default CalendarComponent;
-
-const styles = StyleSheet.create({
-    calendar: {
-        margin: 12,
-        borderWidth: 1,
-        borderRadius: 8,
-    },
-    eventEntry: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        margin: 12,
-        borderWidth: 1,
-        borderRadius: 8,
-        padding: 12,
-    },
-    text: {
-        fontSize: 14,
-        textAlign: 'center',
-        marginBottom: 10,
-    },
-    input: {
-        width: '100%',
-        height: 40,
-        borderWidth: 1,
-        borderRadius: 4,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-    },
-});
