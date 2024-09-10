@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Pressable, Switch, DateTimePicker } from 'react-native';
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
 
@@ -22,6 +22,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [zeroDates, setZeroDates] = useState(true);
     const [eventTitle, setEventTitle] = useState('');
     const [eventDescription, setEventDescription] = useState('');
+    const [eventStartTime, setEventStartTime] = useState(new Date());
+    const [eventEndTime, setEventEndTime] = useState(new Date());
+    const [isAllDay, setIsAllDay] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -54,7 +57,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 
     const handleDayPress = (day: DateData) => {
         const today = new Date();
-        
+
         //Get today's date in YYYY-MM-DD format
         const todayDateString = today.toISOString().split('T')[0];
     
@@ -77,59 +80,49 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     };
 
     //Handle event creation
-    const handleCreateEvent = async (
-        //Pass in information regarding timings of the event
-        //isAllDay: boolean,
-        //eventStart: Date,
-        //eventEnd: Date,
-        //eventisAllDay: boolean
-    ) => {
+    const handleCreateEvent = async () => {
         if (eventTitle && Object.keys(selectedDates).length > 0) {
-            if (eventTitle && Object.keys(selectedDates).length > 0) {
-                try {
-                    const calendar = await ExpoCalendar.getDefaultCalendarAsync();
-                    const selectedDatesList = Object.keys(selectedDates);
+            try {
+                const calendar = await ExpoCalendar.getDefaultCalendarAsync();
+                const selectedDatesList = Object.keys(selectedDates);
     
-                    if (selectedDatesList.length === 1) {
-                        // Create a single-day event
-                        const eventDate = new Date(selectedDatesList[0]);
+                if (selectedDatesList.length === 1) {
+                    // Create a single-day event
+                    const eventDate = new Date(selectedDatesList[0]);
+                    const startDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventStartTime.getHours(), eventStartTime.getMinutes()));
+                    const endDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventEndTime.getHours(), eventEndTime.getMinutes()));
+                    const event = {
+                        title: eventTitle,
+                        notes: eventDescription,
+                        startDate: startDate,
+                        endDate: endDate,
+                        allDay: isAllDay,
+                    };
+                    await ExpoCalendar.createEventAsync(calendar.id, event);
+                    alert('Single-day event created successfully!');
+                } else {
+                    // Create separate events for each selected date
+                    for (const date of selectedDatesList) {
+                        const eventDate = new Date(date);
+                        const startDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventStartTime.getHours(), eventStartTime.getMinutes()));
+                        const endDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventEndTime.getHours(), eventEndTime.getMinutes()));
                         const event = {
                             title: eventTitle,
                             notes: eventDescription,
-                            startDate: eventDate,
-                            endDate: eventDate,
-                            allDay: true,
+                            startDate: startDate,
+                            endDate: endDate,
+                            allDay: isAllDay,
                         };
                         await ExpoCalendar.createEventAsync(calendar.id, event);
-                        alert('Single-day event created successfully!');
-                    } else {
-                        // Create separate events for each selected date
-                        for (const date of selectedDatesList) {
-                            const eventDate = new Date(date);
-                            const event = {
-                                title: eventTitle,
-                                notes: eventDescription,
-                                startDate: eventDate,
-                                endDate: eventDate,
-                                allDay: true,
-                            };
-                            await ExpoCalendar.createEventAsync(calendar.id, event);
-                        }
-                        alert('Multiple events created successfully!');
                     }
-    
-                    setEventTitle('');
-                    setEventDescription('');
-                    setSelectedDates({});
-                } catch (error) {
-                    console.error('Error creating event:', error);
-                    alert('Failed to create event(s). Please try again.');
+                    alert('Multiple events created successfully!');
                 }
-            } else {
-                alert('Please enter an event title and select at least one date.');
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Failed to create event.');
             }
         } else {
-            Alert.alert('Error', 'Please enter an event title and select at least one date.');
+            alert('Please enter an event title and select at least one date.');
         }
     };
 
@@ -238,6 +231,41 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     value={eventDescription}
                                     onChangeText={setEventDescription}
                                 />
+                                <View style={{ marginBottom: 12 }}>
+                                    <Text>All Day Event</Text>
+                                    <Switch
+                                        value={isAllDay}
+                                        onValueChange={setIsAllDay}
+                                    />
+                                </View>
+                                {!isAllDay && (
+                                    <>
+                                        <View style={{ marginBottom: 12 }}>
+                                            <Text>Start Time</Text>
+                                            <DateTimePicker
+                                                value={eventStartTime}
+                                                mode="time"
+                                                display="default"
+                                                onChange={(event: any, selectedDate: Date) => {
+                                                    const currentDate = selectedDate || eventStartTime;
+                                                    setEventStartTime(currentDate);
+                                                }}
+                                            />
+                                        </View>
+                                        <View style={{ marginBottom: 12 }}>
+                                            <Text>End Time</Text>
+                                            <DateTimePicker
+                                                value={eventEndTime}
+                                                mode="time"
+                                                display="default"
+                                                onChange={(event: any, selectedDate: Date) => {
+                                                    const currentDate = selectedDate || eventEndTime;
+                                                    setEventEndTime(currentDate);
+                                                }}
+                                            />
+                                        </View>
+                                    </>
+                                )}
                                 <Pressable onPress={handleCreateEvent}
                                     style={{
                                         width: '80%',
