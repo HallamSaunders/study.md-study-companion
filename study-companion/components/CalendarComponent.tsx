@@ -6,6 +6,7 @@ import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
 //Color schemes
 import { useColorScheme } from '../components/useColorScheme';
 import Colors from '../constants/Colors';
+import { todayString } from 'react-native-calendars/src/expandableCalendar/commons';
 
 interface CalendarComponentProps {
     onSelectDates: (dates: string[]) => void;
@@ -52,14 +53,27 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     }, [selectedDates])
 
     const handleDayPress = (day: DateData) => {
-        const newSelectedDates = { ...selectedDates };
-        if (newSelectedDates[day.dateString]) {
-            delete newSelectedDates[day.dateString];
+        const today = new Date();
+        
+        //Get today's date in YYYY-MM-DD format
+        const todayDateString = today.toISOString().split('T')[0];
+    
+        if (day.dateString >= todayDateString) {
+            const newSelectedDates = { ...selectedDates };
+            if (newSelectedDates[day.dateString]) {
+                delete newSelectedDates[day.dateString];
+            } else {
+                newSelectedDates[day.dateString] = { selected: true };
+            }
+            setSelectedDates(newSelectedDates);
+            onSelectDates(Object.keys(newSelectedDates));
+            return;
         } else {
-            newSelectedDates[day.dateString] = { selected: true };
+            // Check if the selected date is in the past
+            console.log("Cannot select past dates.");
+            Alert.alert('Error', 'Cannot select past dates.');
+            return;
         }
-        setSelectedDates(newSelectedDates);
-        onSelectDates(Object.keys(newSelectedDates));
     };
 
     //Handle event creation
