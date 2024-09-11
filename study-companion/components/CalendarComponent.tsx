@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, TextInput, StyleSheet, Pressable, Switch, DateTimePicker } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Pressable, Switch } from 'react-native';
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 //Color schemes
 import { useColorScheme } from '../components/useColorScheme';
@@ -246,7 +247,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                 value={eventStartTime}
                                                 mode="time"
                                                 display="default"
-                                                onChange={(event: any, selectedDate: Date) => {
+                                                onChange={(event: any, selectedDate?: Date) => {
                                                     const currentDate = selectedDate || eventStartTime;
                                                     setEventStartTime(currentDate);
                                                 }}
@@ -258,7 +259,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                 value={eventEndTime}
                                                 mode="time"
                                                 display="default"
-                                                onChange={(event: any, selectedDate: Date) => {
+                                                onChange={(event: any, selectedDate?: Date) => {
                                                     const currentDate = selectedDate || eventEndTime;
                                                     setEventEndTime(currentDate);
                                                 }}
