@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, TextInput, StyleSheet, Pressable, Switch } from 'react-native';
+import { View, Text, Alert, TextInput, StyleSheet, Pressable, Switch, ScrollView } from 'react-native';
 import * as ExpoCalendar from 'expo-calendar';
 import { Calendar, CalendarProps, DateData } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -26,6 +26,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [eventStartTime, setEventStartTime] = useState(new Date());
     const [eventEndTime, setEventEndTime] = useState(new Date());
     const [isAllDay, setIsAllDay] = useState(true);
+
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     useEffect(() => {
         (async () => {
@@ -134,7 +137,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     };
 
     return (
-        <View style={{
+        <ScrollView style={{
             backgroundColor: themeColors.background,
             }}>
             {/* RENDER CALENDAR */}
@@ -232,14 +235,92 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     value={eventDescription}
                                     onChangeText={setEventDescription}
                                 />
-                                <View style={{ marginBottom: 12 }}>
-                                    <Text>All Day Event</Text>
+                                <View style={{
+                                    marginBottom: 12,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    }}>
+                                    <Text style={{
+                                        color: !isAllDay ? themeColors.subtleText : themeColors.text,
+                                        fontSize: 14,
+                                        marginRight: 12,
+                                    }}>All day event</Text>
                                     <Switch
                                         value={isAllDay}
                                         onValueChange={setIsAllDay}
+                                        thumbColor={themeColors.tint}
+                                        trackColor={{
+                                            true: themeColors.tint,
+                                            false: themeColors.borderSubtle,
+                                        }}
+                                        style={{
+                                            borderColor: themeColors.borderSubtle,
+                                            shadowColor: themeColors.borderSubtle,
+                                        }}
                                     />
                                 </View>
-                                {!isAllDay && (
+                                { isAllDay ? null : (
+                                    <View>
+                                        <View style={{
+                                            marginBottom: 12,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                color: themeColors.text,
+                                                fontSize: 14,
+                                                marginBottom: 12,
+                                                marginRight: 12,
+                                            }}>Start time</Text>
+                                            <TextInput style={{
+                                                color: themeColors.text,
+                                                borderColor: themeColors.borderSubtle,
+                                                height: 40,
+                                                borderWidth: 1,
+                                                borderRadius: 8,
+                                                marginBottom: 12,
+                                                paddingHorizontal: 10,
+                                                fontSize: 14,
+                                                textAlign: 'center',
+                                                }}
+                                                value={startTime}
+                                                placeholder='00:00'
+                                                placeholderTextColor={themeColors.subtleText}
+                                                onChangeText={(text) => setStartTime(text)}
+                                            ></TextInput>
+                                        </View>
+                                        <View style={{
+                                            marginBottom: 12,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                color: themeColors.text,
+                                                fontSize: 14,
+                                                marginBottom: 12,
+                                                marginRight: 12,
+                                            }}>End time</Text>
+                                            <TextInput style={{
+                                                color: themeColors.text,
+                                                borderColor: themeColors.borderSubtle,
+                                                height: 40,
+                                                borderWidth: 1,
+                                                borderRadius: 8,
+                                                marginBottom: 12,
+                                                paddingHorizontal: 10,
+                                                fontSize: 14,
+                                                textAlign: 'center',
+                                                }}
+                                            >
+                                                {endTime}
+                                            </TextInput>
+                                        </View>
+                                    </View>
+                                )}
+                                {/*{!isAllDay && (
                                     <>
                                         <View style={{ marginBottom: 12 }}>
                                             <Text>Start Time</Text>
@@ -266,7 +347,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             />
                                         </View>
                                     </>
-                                )}
+                                )}*/}
                                 <Pressable onPress={handleCreateEvent}
                                     style={{
                                         width: '80%',
@@ -304,7 +385,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                     </View>
                 )}
             </View>
-        </View>
+        </ScrollView>
     );
 };
 
