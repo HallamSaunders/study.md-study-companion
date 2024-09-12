@@ -298,7 +298,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         height: (eventDescription.length <= 0) ? 40 :'auto',
                                         borderWidth: 1,
                                         borderRadius: 8,
-                                        marginBottom: 12,
                                         paddingHorizontal: 10,
                                         paddingVertical: 10,
                                     }}
@@ -308,8 +307,15 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     value={eventDescription}
                                     onChangeText={setEventDescription}
                                 />
+                                
                                 <View style={{
-                                    marginBottom: 12,
+                                    width: '100%',
+                                    height: 1,
+                                    backgroundColor: themeColors.borderSubtle,
+                                    marginVertical: 12,
+                                }} />
+
+                                <View style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
@@ -327,22 +333,20 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             true: themeColors.tint,
                                             false: themeColors.borderSubtle,
                                         }}
+                                        
                                         style={{
-                                            borderColor: themeColors.borderSubtle,
-                                            shadowColor: themeColors.borderSubtle,
+                                            marginVertical: 0,
                                         }}
                                     />
                                 </View>
                                 { isAllDay ? null : (
                                     <View>
                                         <View style={{
-                                            marginBottom: 12,
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                         }}>
                                             <View style={{
-                                                marginBottom: 12,
                                                 flexDirection: 'row',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
@@ -370,7 +374,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                 ></TextInput>
                                             </View>
                                             <View style={{
-                                                marginBottom: 12,
                                                 flexDirection: 'row',
                                                 justifyContent: 'space-between',
                                                 alignItems: 'center',
@@ -401,11 +404,18 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             <Text style={{
                                                 color: themeColors.borderAlert,
                                                 textAlign: 'center',
-                                                marginBottom: 12,
                                             }}>Please ensure time is formatted HH:MM.</Text>
                                         )}
                                     </View>
                                 )}
+
+                                <View style={{
+                                    width: '100%',
+                                    height: 1,
+                                    backgroundColor: themeColors.borderSubtle,
+                                    marginVertical: 12,
+                                }} />
+
                                 <Pressable onPress={handleCreateEvent}
                                     style={{
                                         width: '80%',
@@ -414,7 +424,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         backgroundColor: themeColors.tint,
                                         justifyContent: 'center',
                                         alignItems: 'center',
-                                        marginBottom: 12
                                     }}>
                                         <Text style={{
                                             fontSize: 14,

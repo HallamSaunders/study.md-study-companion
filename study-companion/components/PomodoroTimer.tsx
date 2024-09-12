@@ -113,7 +113,7 @@ const PomodoroTimer = () => {
             setLoading(true);
 
             //Write data to user/{uid}/sessions FIREBASE
-            try {
+            /*try {
                 const sessionData: sessionData = {
                     time: totalTime,
                     blocks: totalBlocks,
@@ -135,7 +135,7 @@ const PomodoroTimer = () => {
                 setLoading(false);
             } catch (error) {
                 console.error("Error writing session data: ", error);
-            }
+            }*/
 
             //Write data to SQLite database
             try {
@@ -299,9 +299,7 @@ const PomodoroTimer = () => {
                             }}>Break</Text>
                         )}
                     </View>
-                ) : (
-                    <View></View>
-                )}
+                ) : null}
 
                 {/* RENDER STUDY/BREAK TOGGLE */}
                 { stopped ? (
@@ -337,12 +335,11 @@ const PomodoroTimer = () => {
                             }}>Break</Text>
                         </Pressable> 
                     </View>
-                ) : (
-                    <View></View>
-                )}
+                ) : null}
 
                 {/* RENDER TIMER AND PROGRESS BAR */}
                 <View style={{
+                    flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: 250
@@ -447,9 +444,7 @@ const PomodoroTimer = () => {
                                 </Pressable>
                             </View>
                         </View>
-                    ) : (
-                        <View></View>
-                    )}
+                    ) : null}
                 </View>
 
                 {/* RENDER BUTTONS DEPENDING ON STATE OF TIMERS */}
@@ -476,9 +471,7 @@ const PomodoroTimer = () => {
                                 color: themeColors.text,
                             }}>Start</Text>
                         </Pressable>
-                    ) : (
-                        <View></View>
-                    )}
+                    ) : null}
                     { paused ? (
                         <Pressable onPress={showAlert}
                             style={{
@@ -495,9 +488,7 @@ const PomodoroTimer = () => {
                                 color: themeColors.text,
                             }}>Reset</Text>   
                         </Pressable>
-                    ) : (
-                        <View></View>
-                    )}
+                    ) : null}
                     { running ? (
                         <Pressable onPress={() => pausePomodoro()}
                             style={{
@@ -515,9 +506,7 @@ const PomodoroTimer = () => {
                                 color: themeColors.text,
                             }}>Pause</Text> 
                         </Pressable>
-                    ) : (
-                        <View></View>
-                    )}
+                    ) : null}
                     {/*<Pressable onPress={() => setTimer(5)}
                         style={{
                             flex: 1,
@@ -566,13 +555,13 @@ const PomodoroTimer = () => {
                     </View>
                     { (stopped || paused) && !(totalTime === 0) ? (
                         <View style={{
-                            marginTop: 5,
+                            marginTop: 12,
                             width: '100%',
                             height: 40,
                         }}>
                             <Pressable onPress={() => logSessionStats(totalTime, completedBlocks)}
                                 style={{
-                                    flex: 1,
+                                    height: 40,
                                     borderRadius: 8,
                                     paddingHorizontal: 10,
                                     backgroundColor: themeColors.tint,
@@ -604,7 +593,6 @@ const PomodoroTimer = () => {
                     <ActivityIndicator size='large' color={themeColors.tint}/>
                 </View>
             )}
-
         </View>
     )
 }
