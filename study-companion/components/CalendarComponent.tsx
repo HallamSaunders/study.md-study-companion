@@ -8,6 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useColorScheme } from '../components/useColorScheme';
 import Colors from '../constants/Colors';
 import { todayString } from 'react-native-calendars/src/expandableCalendar/commons';
+import Checkbox from 'expo-checkbox';
 
 interface CalendarComponentProps {
     onSelectDates: (dates: string[]) => void;
@@ -272,13 +273,41 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                 width: '100%',
                                 alignItems: 'center',
                             }}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    }}>
+                                    <Text style={{
+                                        color: !isAllDay ? themeColors.subtleText : themeColors.text,
+                                        fontSize: 14,
+                                        marginRight: 12,
+                                    }}>All day event</Text>
+                                    <Checkbox
+                                        value={isAllDay}
+                                        onValueChange={setIsAllDay}
+                                        color={themeColors.tint}
+                                    />
+                                    {/*<Switch
+                                        value={isAllDay}
+                                        onValueChange={setIsAllDay}
+                                        thumbColor={themeColors.tint}
+                                        trackColor={{
+                                            true: themeColors.tint,
+                                            false: themeColors.borderSubtle,
+                                        }}
+                                        style={{
+                                            marginVertical: 0,
+                                        }}
+                                    />*/}
+                                </View>
                                 <TextInput
                                     style={{
                                         color: themeColors.text,
                                         borderColor: themeColors.borderSubtle,
                                         width: '100%',
                                         height: 40,
-                                        borderWidth: 1,
+                                        borderBottomWidth: 1,
                                         borderRadius: 8,
                                         marginBottom: 12,
                                         paddingVertical: 10,
@@ -297,7 +326,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         minHeight: 40,
                                         maxHeight: 80,
                                         height: (eventDescription.length <= 0) ? 40 :'auto',
-                                        borderWidth: 1,
+                                        marginBottom: 12,
+                                        borderBottomWidth: 1,
                                         borderRadius: 8,
                                         paddingHorizontal: 10,
                                         paddingVertical: 10,
@@ -309,37 +339,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     onChangeText={setEventDescription}
                                 />
                                 
-                                <View style={{
+                                {/*<View style={{
                                     width: '100%',
                                     height: 1,
                                     backgroundColor: themeColors.borderSubtle,
                                     marginTop: 12,
-                                }} />
+                                }} />*/}
 
-                                <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    }}>
-                                    <Text style={{
-                                        color: !isAllDay ? themeColors.subtleText : themeColors.text,
-                                        fontSize: 14,
-                                        marginRight: 12,
-                                    }}>All day event</Text>
-                                    <Switch
-                                        value={isAllDay}
-                                        onValueChange={setIsAllDay}
-                                        thumbColor={themeColors.tint}
-                                        trackColor={{
-                                            true: themeColors.tint,
-                                            false: themeColors.borderSubtle,
-                                        }}
-                                        
-                                        style={{
-                                            marginVertical: 0,
-                                        }}
-                                    />
-                                </View>
                                 { isAllDay ? null : (
                                     <View style={{
                                         marginBottom: 12,
@@ -363,7 +369,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                     color: themeColors.text,
                                                     borderColor: invalidTime ? themeColors.borderAlert : themeColors.borderSubtle,
                                                     height: 40,
-                                                    borderWidth: 1,
+                                                    borderBottomWidth: 1,
                                                     borderRadius: 8,
                                                     marginRight: 12,
                                                     paddingHorizontal: 10,
@@ -390,7 +396,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                     color: themeColors.text,
                                                     borderColor: invalidTime ? themeColors.borderAlert : themeColors.borderSubtle,
                                                     height: 40,
-                                                    borderWidth: 1,
+                                                    borderBottomWidth: 1,
                                                     borderRadius: 8,
                                                     paddingHorizontal: 10,
                                                     fontSize: 14,
@@ -412,14 +418,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         )}
                                     </View>
                                 )}
-
-                                <View style={{
-                                    width: '100%',
-                                    height: 1,
-                                    backgroundColor: themeColors.borderSubtle,
-                                    marginBottom: 12,
-                                }} />
-
                                 <Pressable onPress={handleCreateEvent}
                                     style={{
                                         width: '80%',
