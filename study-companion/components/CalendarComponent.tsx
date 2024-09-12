@@ -415,6 +415,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         height: 40,
                                         borderRadius: 8,
                                         backgroundColor: themeColors.tint,
+                                        marginTop: 12,
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                     }}>

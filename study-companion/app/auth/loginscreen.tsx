@@ -25,7 +25,6 @@ export default function LoginScreen({ navigation }: RouterProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [invalid, setInvalid] = useState(false);
 
     const signIn = async () => {
         setLoading(true);
@@ -39,6 +38,11 @@ export default function LoginScreen({ navigation }: RouterProps) {
         }
     }
 
+    const getEmailBorderColor = (email: string) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return email.match(emailRegex) || email === '' ? themeColors.border : themeColors.borderAlert;
+    };
+
     return (
         <View style={styles.container}>
             <Text style={{
@@ -51,8 +55,8 @@ export default function LoginScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (email === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: getEmailBorderColor(email),
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: (!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? 2 : 12,
@@ -65,8 +69,8 @@ export default function LoginScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (password === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: themeColors.border,
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,

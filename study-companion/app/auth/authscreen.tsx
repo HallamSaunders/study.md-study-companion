@@ -82,6 +82,11 @@ export default function AuthScreen({ navigation }: RouterProps) {
       }
     }
 
+    const getEmailBorderColor = (email: string) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return email.match(emailRegex) || email === '' ? themeColors.border : themeColors.borderAlert;
+    };
+
     return (
         <View style={styles.container}>
             <Text style={{
@@ -94,8 +99,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (username === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: themeColors.border,
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,
@@ -111,8 +116,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 <TextInput value={firstName} placeholder='First Name' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setFirstName(text)}
                     style={{
                         height: '100%',
-                        borderColor: (firstName === '') ? themeColors.borderAlert : themeColors.border,
-                        borderWidth: 1,
+                        borderColor: themeColors.border,
+                        borderBottomWidth: 1,
                         borderRadius: 8,
                         paddingHorizontal: 10,
                         color: themeColors.text,
@@ -123,8 +128,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 <TextInput value={lastName} placeholder='Last Name' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setLastName(text)}
                     style={{
                         height: '100%',
-                        borderColor: (lastName === '') ? themeColors.borderAlert : themeColors.border,
-                        borderWidth: 1,
+                        borderColor: themeColors.border,
+                        borderBottomWidth: 1,
                         borderRadius: 8,
                         paddingHorizontal: 10,
                         color: themeColors.text,
@@ -136,8 +141,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (email === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: getEmailBorderColor(email),
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: (!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? 2 : 12,
@@ -152,8 +157,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (password === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: (password == passwordConf) ? themeColors.border : themeColors.borderAlert,
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: 12,
@@ -163,8 +168,8 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (passwordConf === '') ? themeColors.borderAlert : themeColors.border,
-                    borderWidth: 1,
+                    borderColor: (password == passwordConf) ? themeColors.border : themeColors.borderAlert,
+                    borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: (!(password === passwordConf)) ? 2 : 12,
