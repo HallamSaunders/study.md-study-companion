@@ -132,6 +132,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         }
     };
 
+    //Validate time input on time change
     useEffect(() => {
         //Regex for time input
         const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -312,7 +313,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     width: '100%',
                                     height: 1,
                                     backgroundColor: themeColors.borderSubtle,
-                                    marginVertical: 12,
+                                    marginTop: 12,
                                 }} />
 
                                 <View style={{
@@ -340,7 +341,9 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     />
                                 </View>
                                 { isAllDay ? null : (
-                                    <View>
+                                    <View style={{
+                                        marginBottom: 12,
+                                    }}>
                                         <View style={{
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
@@ -404,6 +407,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             <Text style={{
                                                 color: themeColors.borderAlert,
                                                 textAlign: 'center',
+                                                marginTop: 5
                                             }}>Please ensure time is formatted HH:MM.</Text>
                                         )}
                                     </View>
@@ -413,7 +417,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     width: '100%',
                                     height: 1,
                                     backgroundColor: themeColors.borderSubtle,
-                                    marginVertical: 12,
+                                    marginBottom: 12,
                                 }} />
 
                                 <Pressable onPress={handleCreateEvent}
