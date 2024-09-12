@@ -286,7 +286,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     <Checkbox
                                         value={isAllDay}
                                         onValueChange={setIsAllDay}
-                                        color={themeColors.tint}
+                                        color={isAllDay ? themeColors.tint : themeColors.borderSubtle}
                                     />
                                     {/*<Switch
                                         value={isAllDay}
@@ -338,13 +338,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     value={eventDescription}
                                     onChangeText={setEventDescription}
                                 />
-                                
-                                {/*<View style={{
-                                    width: '100%',
-                                    height: 1,
-                                    backgroundColor: themeColors.borderSubtle,
-                                    marginTop: 12,
-                                }} />*/}
 
                                 { isAllDay ? null : (
                                     <View style={{
@@ -352,18 +345,17 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                     }}>
                                         <View style={{
                                             flexDirection: 'row',
-                                            justifyContent: 'space-between',
+                                            justifyContent: 'center',
                                             alignItems: 'center',
                                         }}>
                                             <View style={{
                                                 flexDirection: 'row',
-                                                justifyContent: 'space-between',
+                                                justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
                                                 <Text style={{
                                                     color: themeColors.text,
                                                     fontSize: 14,
-                                                    marginRight: 12,
                                                 }}>Start time:</Text>
                                                 <TextInput style={{
                                                     color: themeColors.text,
@@ -375,7 +367,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                     paddingHorizontal: 10,
                                                     fontSize: 14,
                                                     textAlign: 'center',
-                                                    }}
+                                                }}
                                                     value={startTime}
                                                     placeholder='00:00'
                                                     placeholderTextColor={themeColors.subtleText}
@@ -390,7 +382,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                 <Text style={{
                                                     color: themeColors.text,
                                                     fontSize: 14,
-                                                    marginRight: 12,
                                                 }}>End time:</Text>
                                                 <TextInput style={{
                                                     color: themeColors.text,
@@ -401,7 +392,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                     paddingHorizontal: 10,
                                                     fontSize: 14,
                                                     textAlign: 'center',
-                                                    }}
+                                                }}
                                                     value={endTime}
                                                     placeholder='00:00'
                                                     placeholderTextColor={themeColors.subtleText}
