@@ -60,9 +60,7 @@ export default function LoginScreen({ navigation }: RouterProps) {
                 }}></TextInput>
             {(!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? (
                 <Text style={{ marginBottom: 12, color: themeColors.textAlert }}>Please enter a valid email.</Text>
-            ) : (
-                <View></View>
-            )}
+            ) : null }
             <TextInput value={password} placeholder='Password' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true}
                 style={{
                     width: '80%',

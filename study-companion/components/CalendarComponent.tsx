@@ -27,8 +27,10 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [eventEndTime, setEventEndTime] = useState(new Date());
     const [isAllDay, setIsAllDay] = useState(true);
 
+    //Time inputs and state
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [invalidTime, setInvalidTime] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -130,6 +132,79 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         }
     };
 
+    useEffect(() => {
+        //Regex for time input
+        const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+        const timeRegexArray = [
+            /^[0-2]$/,  //Char 1: 0-2
+            /^[0-9]$/,  //Char 2: 0-9
+            /^(:)$/,    //Char 3: :
+            /^[0-5]$/,  //Char 4: 0-5
+            /^[0-9]$/   //Char 5: 0-9
+        ];
+    
+        const validateTime = (text: string) => {
+            //Set limit of 5 characters for time input
+            if (text.length <= 5) {
+                //Check each index of the input against the corresponding regex
+                let isValid = true;
+                for (let i = 0; i < text.length; i++) {
+                    if (!text.charAt(i).match(timeRegexArray[i])) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                
+                //Check full time regex if input is 5 characters long
+                if (isValid && text.length === 5) {
+                    isValid = timeRegex.test(text);
+                }
+    
+                //Update invalid time state
+                setInvalidTime(!isValid);
+            } else {
+                //If input is longer than 5 characters, it must be invalid
+                setInvalidTime(true);
+            }
+        };
+    
+        //Validate both start and end times
+        validateTime(startTime);
+        validateTime(endTime);
+    }, [startTime, endTime]);
+
+    const handleSetTime = (text: string, type: 'start' | 'end') => {
+        //Regex for time input
+        const timeRegexArray = [
+            /^[0-2]$/,  //Char 1: 0-2
+            /^[0-9]$/,  //Char 2: 0-9
+            /^(:)$/,    //Char 3: :
+            /^[0-5]$/,  //Char 4: 0-5
+            /^[0-9]$/   //Char 5: 0-9
+        ];
+    
+        //Check each index of the input against the corresponding regex
+        let isValid = true;
+
+        for (let i = 0; i < text.length; i++) {
+            if (!text.charAt(i).match(timeRegexArray[i])) {
+                isValid = false;
+                break;
+            }
+        }
+    
+        //Only update text state if the input is valid
+        if (isValid && text.length <= 5) {
+            if (type === 'start') {
+                setStartTime(text);
+            } else {
+                setEndTime(text);
+            }
+        } else {
+            setInvalidTime(true);
+        }
+    };
+
     const calendarProps: CalendarProps = {
         markedDates: selectedDates,
         onDayPress: handleDayPress,
@@ -190,19 +265,12 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                             fontSize: 24,
                             textAlign: 'center',
                             marginBottom: 12,
-                        }}>Create an event.</Text>
+                        }}>Create an event</Text>
                         { !multipleDates ? (
                             <View style={{
                                 width: '100%',
                                 alignItems: 'center',
                             }}>
-                                {/*<Text style={{
-                                    color: themeColors.text,
-                                    fontSize: 14,
-                                    textAlign: 'center',
-                                    marginBottom: 12, }}>
-                                    { !multipleDates ? 'One date selected.' : 'Multiple dates selected.' }
-                                </Text>*/}
                                 <TextInput
                                     style={{
                                         color: themeColors.text,
@@ -212,9 +280,10 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         borderWidth: 1,
                                         borderRadius: 8,
                                         marginBottom: 12,
+                                        paddingVertical: 10,
                                         paddingHorizontal: 10,
                                     }}
-                                    placeholder="Event Title"
+                                    placeholder="Event title"
                                     placeholderTextColor={themeColors.subtleText}
                                     value={eventTitle}
                                     onChangeText={setEventTitle}
@@ -224,13 +293,17 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         color: themeColors.text,
                                         borderColor: themeColors.borderSubtle,
                                         width: '100%',
-                                        height: 40,
+                                        minHeight: 40,
+                                        maxHeight: 80,
+                                        height: (eventDescription.length <= 0) ? 40 :'auto',
                                         borderWidth: 1,
                                         borderRadius: 8,
                                         marginBottom: 12,
                                         paddingHorizontal: 10,
+                                        paddingVertical: 10,
                                     }}
-                                    placeholder="Event Description"
+                                    multiline={true}
+                                    placeholder="Event description"
                                     placeholderTextColor={themeColors.subtleText}
                                     value={eventDescription}
                                     onChangeText={setEventDescription}
@@ -268,86 +341,71 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             justifyContent: 'space-between',
                                             alignItems: 'center',
                                         }}>
-                                            <Text style={{
-                                                color: themeColors.text,
-                                                fontSize: 14,
+                                            <View style={{
                                                 marginBottom: 12,
-                                                marginRight: 12,
-                                            }}>Start time</Text>
-                                            <TextInput style={{
-                                                color: themeColors.text,
-                                                borderColor: themeColors.borderSubtle,
-                                                height: 40,
-                                                borderWidth: 1,
-                                                borderRadius: 8,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}>
+                                                <Text style={{
+                                                    color: themeColors.text,
+                                                    fontSize: 14,
+                                                    marginRight: 12,
+                                                }}>Start time:</Text>
+                                                <TextInput style={{
+                                                    color: themeColors.text,
+                                                    borderColor: invalidTime ? themeColors.borderAlert : themeColors.borderSubtle,
+                                                    height: 40,
+                                                    borderWidth: 1,
+                                                    borderRadius: 8,
+                                                    marginRight: 12,
+                                                    paddingHorizontal: 10,
+                                                    fontSize: 14,
+                                                    textAlign: 'center',
+                                                    }}
+                                                    value={startTime}
+                                                    placeholder='00:00'
+                                                    placeholderTextColor={themeColors.subtleText}
+                                                    onChangeText={(text) => handleSetTime(text, 'start')}
+                                                ></TextInput>
+                                            </View>
+                                            <View style={{
                                                 marginBottom: 12,
-                                                paddingHorizontal: 10,
-                                                fontSize: 14,
-                                                textAlign: 'center',
-                                                }}
-                                                value={startTime}
-                                                placeholder='00:00'
-                                                placeholderTextColor={themeColors.subtleText}
-                                                onChangeText={(text) => setStartTime(text)}
-                                            ></TextInput>
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}>
+                                                <Text style={{
+                                                    color: themeColors.text,
+                                                    fontSize: 14,
+                                                    marginRight: 12,
+                                                }}>End time:</Text>
+                                                <TextInput style={{
+                                                    color: themeColors.text,
+                                                    borderColor: invalidTime ? themeColors.borderAlert : themeColors.borderSubtle,
+                                                    height: 40,
+                                                    borderWidth: 1,
+                                                    borderRadius: 8,
+                                                    paddingHorizontal: 10,
+                                                    fontSize: 14,
+                                                    textAlign: 'center',
+                                                    }}
+                                                    value={endTime}
+                                                    placeholder='00:00'
+                                                    placeholderTextColor={themeColors.subtleText}
+                                                    onChangeText={(text) => handleSetTime(text, 'end')}
+                                                ></TextInput>
+                                            </View>
                                         </View>
-                                        <View style={{
-                                            marginBottom: 12,
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}>
+                                        {invalidTime && (
                                             <Text style={{
-                                                color: themeColors.text,
-                                                fontSize: 14,
-                                                marginBottom: 12,
-                                                marginRight: 12,
-                                            }}>End time</Text>
-                                            <TextInput style={{
-                                                color: themeColors.text,
-                                                borderColor: themeColors.borderSubtle,
-                                                height: 40,
-                                                borderWidth: 1,
-                                                borderRadius: 8,
-                                                marginBottom: 12,
-                                                paddingHorizontal: 10,
-                                                fontSize: 14,
+                                                color: themeColors.borderAlert,
                                                 textAlign: 'center',
-                                                }}
-                                            >
-                                                {endTime}
-                                            </TextInput>
-                                        </View>
+                                                marginBottom: 12,
+                                            }}>Please ensure time is formatted HH:MM.</Text>
+                                        )}
                                     </View>
                                 )}
-                                {/*{!isAllDay && (
-                                    <>
-                                        <View style={{ marginBottom: 12 }}>
-                                            <Text>Start Time</Text>
-                                            <DateTimePicker
-                                                value={eventStartTime}
-                                                mode="time"
-                                                display="default"
-                                                onChange={(event: any, selectedDate?: Date) => {
-                                                    const currentDate = selectedDate || eventStartTime;
-                                                    setEventStartTime(currentDate);
-                                                }}
-                                            />
-                                        </View>
-                                        <View style={{ marginBottom: 12 }}>
-                                            <Text>End Time</Text>
-                                            <DateTimePicker
-                                                value={eventEndTime}
-                                                mode="time"
-                                                display="default"
-                                                onChange={(event: any, selectedDate?: Date) => {
-                                                    const currentDate = selectedDate || eventEndTime;
-                                                    setEventEndTime(currentDate);
-                                                }}
-                                            />
-                                        </View>
-                                    </>
-                                )}*/}
                                 <Pressable onPress={handleCreateEvent}
                                     style={{
                                         width: '80%',
