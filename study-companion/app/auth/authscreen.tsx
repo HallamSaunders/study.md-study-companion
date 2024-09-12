@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native';
 
@@ -49,7 +49,15 @@ export default function AuthScreen({ navigation }: RouterProps) {
         lastName: string
     ) => {
       setLoading(true);
-      if (password == passwordConf) {
+      if (password == passwordConf
+        && email !== ''
+        && email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        && username !== ''
+        && firstName !== ''
+        && lastName !== ''
+        && password !== ''
+        && passwordConf !== ''
+      ) {
         try {
             const userCredential = await createUserWithEmailAndPassword(FIREBASE_AUTH, email, password);
             console.log(userCredential);
@@ -72,6 +80,7 @@ export default function AuthScreen({ navigation }: RouterProps) {
                     console.log("Document written with ID: ", docRef.id);
                 } catch (error) {
                     console.error("Error adding document: ", error);
+                    Alert.alert('Error', 'An error occurred while creating your account. Please try again.');
                 }
             }
         } catch (error) {
@@ -150,14 +159,14 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 }}></TextInput>
             {(!email.match('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$') && !(email === '')) ? (
                 <Text style={{ marginBottom: 12, color: themeColors.textAlert }}>Please enter a valid email.</Text>
-            ) : (
-                <View></View>
-            )}
+            ) : null }
             <TextInput value={password} placeholder='Password' placeholderTextColor={themeColors.subtleText} autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true}
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (password == passwordConf) ? themeColors.border : themeColors.borderAlert,
+                    borderColor: (password === passwordConf) && (password.length > 6)
+                        ? themeColors.border
+                        : themeColors.borderAlert,
                     borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
@@ -168,18 +177,32 @@ export default function AuthScreen({ navigation }: RouterProps) {
                 style={{
                     width: '80%',
                     height: 40,
-                    borderColor: (password == passwordConf) ? themeColors.border : themeColors.borderAlert,
+                    borderColor: (password === passwordConf) && (password.length > 6)
+                        ? themeColors.border
+                        : themeColors.borderAlert,
                     borderBottomWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: 10,
                     marginBottom: (!(password === passwordConf)) ? 2 : 12,
                     color: themeColors.text
                 }}></TextInput>
-            {!(password === passwordConf) ? (
-                <Text style={{ marginBottom: 12, color: themeColors.textAlert }}>Please ensure passwords match.</Text>
-            ) : (
-                <View></View>
-            )}
+                <View style={{
+                    width: '80%',
+                    marginBottom: 12,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    {!(password === passwordConf) ? (
+                        <Text style={{ color: themeColors.textAlert }}>Please ensure passwords match.</Text>
+                    ) : null }
+                    {(password.length < 8) ? (
+                        <Text style={{
+                            color: themeColors.textAlert,
+                            textAlign: 'center',
+                        }}>Please ensure password is at least 8 characters long.</Text>
+                    ) : null }
+                </View>
             {!loading ? (
                 <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <Pressable onPress={() => signUp(username, email, password, passwordConf, firstName, lastName)}

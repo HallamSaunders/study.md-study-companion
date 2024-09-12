@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import React, { useState } from 'react'
 import { NavigationProp } from '@react-navigation/native';
 
@@ -33,6 +33,7 @@ export default function LoginScreen({ navigation }: RouterProps) {
             console.log(response);
         } catch (error) {
             console.log(error);
+            Alert.alert('Error', 'Invalid email or password. Please try again.');
         } finally {
             setLoading(false);
         }
