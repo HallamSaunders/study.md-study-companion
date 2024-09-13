@@ -7,8 +7,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 //Color schemes
 import { useColorScheme } from '../components/useColorScheme';
 import Colors from '../constants/Colors';
-import { todayString } from 'react-native-calendars/src/expandableCalendar/commons';
-import Checkbox from 'expo-checkbox';
 import { Feather } from '@expo/vector-icons';
 
 interface CalendarComponentProps {
@@ -34,7 +32,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [endTime, setEndTime] = useState('');
     const [invalidTime, setInvalidTime] = useState(false);
     const [invalidEntries, setInvalidEntries] = useState(false);
-
 
     //Get calendar permissions
     useEffect(() => {
@@ -87,53 +84,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
             console.log("Cannot select past dates.");
             Alert.alert('Error', 'Cannot select past dates.');
             return;
-        }
-    };
-
-    //Handle event creation
-    const handleCreateEvent = async () => {
-        if (eventTitle && Object.keys(selectedDates).length > 0) {
-            try {
-                const calendar = await ExpoCalendar.getDefaultCalendarAsync();
-                const selectedDatesList = Object.keys(selectedDates);
-    
-                if (selectedDatesList.length === 1) {
-                    // Create a single-day event
-                    const eventDate = new Date(selectedDatesList[0]);
-                    const startDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventStartTime.getHours(), eventStartTime.getMinutes()));
-                    const endDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventEndTime.getHours(), eventEndTime.getMinutes()));
-                    const event = {
-                        title: eventTitle,
-                        notes: eventDescription,
-                        startDate: startDate,
-                        endDate: endDate,
-                        allDay: isAllDay,
-                    };
-                    await ExpoCalendar.createEventAsync(calendar.id, event);
-                    alert('Single-day event created successfully!');
-                } else {
-                    // Create separate events for each selected date
-                    for (const date of selectedDatesList) {
-                        const eventDate = new Date(date);
-                        const startDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventStartTime.getHours(), eventStartTime.getMinutes()));
-                        const endDate = isAllDay ? eventDate : new Date(eventDate.setHours(eventEndTime.getHours(), eventEndTime.getMinutes()));
-                        const event = {
-                            title: eventTitle,
-                            notes: eventDescription,
-                            startDate: startDate,
-                            endDate: endDate,
-                            allDay: isAllDay,
-                        };
-                        await ExpoCalendar.createEventAsync(calendar.id, event);
-                    }
-                    alert('Multiple events created successfully!');
-                }
-            } catch (error) {
-                console.error('Error creating event:', error);
-                alert('Failed to create event.');
-            }
-        } else {
-            alert('Please enter an event title and select at least one date.');
         }
     };
 
@@ -232,6 +182,64 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         } else {
             setInvalidTime(true);
         }
+    };
+
+    const handleCreateEvent = async () => {
+        if (!multipleDates) {
+            
+        }
+        
+        //Extract event details from state variables
+        const title = eventTitle.trim();
+        const description = eventDescription.trim();
+        const start = startTime.trim();
+        const end = endTime.trim();
+        const allDay = isAllDay;
+        const selectedDatesArray = Object.keys(selectedDates).filter(date => selectedDates[date].selected);
+    
+        //This is already accounted for, but just incase!
+        if (title === '' || description === '' || start.length < 5 || end.length < 5 || invalidTime) {
+            alert('Please fill in all required fields with valid data.');
+            return;
+        }
+    
+        //Create event object
+        const newEvent = {
+            title,
+            description,
+            startTime: start,
+            endTime: end,
+            isAllDay: allDay,
+            dates: selectedDatesArray,
+        };
+    
+        try {
+            //Save event (replace with your actual save logic)
+            await saveEvent(newEvent);
+    
+            //Clear input fields after saving
+            setEventTitle('');
+            setEventDescription('');
+            setStartTime('');
+            setEndTime('');
+            setIsAllDay(true);
+            setSelectedDates({});
+            alert('Event created successfully!');
+        } catch (error) {
+            console.error('Error creating event:', error);
+            alert('Failed to create event. Please try again.');
+        }
+    
+        //Placeholder for future implementation of multi-day events
+        //if (multipleDates) {
+        //    // Handle multi-day events
+        //}
+    };
+    
+    //Placeholder function for saving the event (replace with your actual save logic)
+    const saveEvent = async (event: { title: string; description: string; startTime: string; endTime: string; isAllDay: boolean; dates: string[]; }) => {
+        //Implement your save logic here (e.g., API call, local storage)
+        console.log('Saving event:', event);
     };
 
     const calendarProps: CalendarProps = {
