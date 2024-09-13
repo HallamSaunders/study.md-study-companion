@@ -35,6 +35,8 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [invalidTime, setInvalidTime] = useState(false);
     const [invalidEntries, setInvalidEntries] = useState(false);
 
+
+    //Get calendar permissions
     useEffect(() => {
         (async () => {
             const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
@@ -135,6 +137,17 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         }
     };
 
+    //Update timers when all day event is toggled
+    useEffect(() => {
+        if (isAllDay) {
+            setStartTime('00:00');
+            setEndTime('23:59');
+        } else {
+            setStartTime('');
+            setEndTime('');
+        }
+    }, [isAllDay]);
+
     //Update invalidEntries based on the conditions
     useEffect(() => {
         const isInvalid = 
@@ -208,7 +221,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                 break;
             }
         }
-    
+
         //Only update text state if the input is valid
         if (isValid && text.length <= 5) {
             if (type === 'start') {
@@ -312,7 +325,6 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                             <Feather name='check' color={themeColors.text} size={16}/> 
                                         : null }
                                     </View>
-
                                 </Pressable>
                                 <TextInput
                                     style={{
