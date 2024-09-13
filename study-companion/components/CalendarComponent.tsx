@@ -33,6 +33,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
     const [invalidTime, setInvalidTime] = useState(false);
+    const [invalidEntries, setInvalidEntries] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -133,6 +134,18 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
             alert('Please enter an event title and select at least one date.');
         }
     };
+
+    //Update invalidEntries based on the conditions
+    useEffect(() => {
+        const isInvalid = 
+            startTime.length < 5 || 
+            endTime.length < 5 || 
+            eventTitle.trim() === '' || 
+            eventDescription.trim() === '' || 
+            invalidTime;
+
+        setInvalidEntries(isInvalid);
+    }, [startTime, endTime, eventTitle, eventDescription, invalidTime]);
 
     //Validate time input on time change
     useEffect(() => {
@@ -409,21 +422,41 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                         )}
                                     </View>
                                 )}
-                                <Pressable onPress={handleCreateEvent}
-                                    style={{
-                                        width: '80%',
-                                        height: 40,
-                                        borderRadius: 8,
-                                        backgroundColor: themeColors.tint,
-                                        marginTop: 12,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <Text style={{
-                                            fontSize: 14,
-                                            color: themeColors.text,
-                                        }}>Create event</Text>        
-                                </Pressable>
+
+                                {/* RENDER CREATE EVENT BUTTON BASED ON VALIDITY OF ENTRIES */}
+                                {invalidEntries ? (
+                                    <Pressable
+                                        style={{
+                                            width: '80%',
+                                            height: 40,
+                                            borderRadius: 8,
+                                            backgroundColor: themeColors.borderSubtle,
+                                            marginTop: 12,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                color: themeColors.text,
+                                            }}>Create event</Text>        
+                                    </Pressable>
+                                ) : (
+                                    <Pressable onPress={handleCreateEvent}
+                                        style={{
+                                            width: '80%',
+                                            height: 40,
+                                            borderRadius: 8,
+                                            backgroundColor: themeColors.tint,
+                                            marginTop: 12,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                            <Text style={{
+                                                fontSize: 14,
+                                                color: themeColors.text,
+                                            }}>Create event</Text>        
+                                    </Pressable>
+                                )}
                             </View>
                         ) : (
                             <View>
