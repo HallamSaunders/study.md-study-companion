@@ -425,33 +425,43 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                                 ></TextInput>
                                             </View>
                                         </View>
-                                        {invalidTime && (
-                                            <Text style={{
-                                                color: themeColors.borderAlert,
-                                                textAlign: 'center',
-                                                marginTop: 5
-                                            }}>Please ensure time is formatted HH:MM.</Text>
-                                        )}
                                     </View>
                                 )}
 
                                 {/* RENDER CREATE EVENT BUTTON BASED ON VALIDITY OF ENTRIES */}
                                 {invalidEntries ? (
-                                    <Pressable
-                                        style={{
-                                            width: '80%',
-                                            height: 40,
-                                            borderRadius: 8,
-                                            backgroundColor: themeColors.borderSubtle,
-                                            marginTop: 12,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
+                                    <View style={{
+                                        width: '100%',
+                                        alignItems: 'center',
+                                    }}>
+                                        {invalidTime && (
                                             <Text style={{
-                                                fontSize: 14,
-                                                color: themeColors.text,
-                                            }}>Create event</Text>        
-                                    </Pressable>
+                                                color: themeColors.borderAlert,
+                                                textAlign: 'center',
+                                                marginTop: 0
+                                            }}>Please ensure time is formatted HH:MM.</Text>
+                                        )}
+                                        <Text style={{
+                                            color: themeColors.textAlert,
+                                            fontSize: 14,
+                                            textAlign: 'center'
+                                        }}>Please ensure all fields are filled out correctly.</Text>
+                                        <Pressable
+                                            style={{
+                                                width: '80%',
+                                                height: 40,
+                                                borderRadius: 8,
+                                                backgroundColor: themeColors.borderSubtle,
+                                                marginTop: 12,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <Text style={{
+                                                    fontSize: 14,
+                                                    color: themeColors.text,
+                                                }}>Create event</Text>        
+                                        </Pressable>
+                                    </View>
                                 ) : (
                                     <Pressable onPress={handleCreateEvent}
                                         style={{
