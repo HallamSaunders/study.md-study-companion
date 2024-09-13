@@ -9,6 +9,7 @@ import { useColorScheme } from '../components/useColorScheme';
 import Colors from '../constants/Colors';
 import { todayString } from 'react-native-calendars/src/expandableCalendar/commons';
 import Checkbox from 'expo-checkbox';
+import { Feather } from '@expo/vector-icons';
 
 interface CalendarComponentProps {
     onSelectDates: (dates: string[]) => void;
@@ -273,34 +274,33 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
                                 width: '100%',
                                 alignItems: 'center',
                             }}>
-                                <View style={{
+                                <Pressable style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    }}>
+                                    }}
+                                    onPress={() => setIsAllDay(!isAllDay)}>
                                     <Text style={{
                                         color: !isAllDay ? themeColors.subtleText : themeColors.text,
                                         fontSize: 14,
-                                        marginRight: 12,
+                                        marginRight: 6,
                                     }}>All day event</Text>
-                                    <Checkbox
-                                        value={isAllDay}
-                                        onValueChange={setIsAllDay}
-                                        color={isAllDay ? themeColors.tint : themeColors.borderSubtle}
-                                    />
-                                    {/*<Switch
-                                        value={isAllDay}
-                                        onValueChange={setIsAllDay}
-                                        thumbColor={themeColors.tint}
-                                        trackColor={{
-                                            true: themeColors.tint,
-                                            false: themeColors.borderSubtle,
-                                        }}
-                                        style={{
-                                            marginVertical: 0,
-                                        }}
-                                    />*/}
-                                </View>
+                                    <View style={{
+                                        borderWidth: 2,
+                                        borderRadius: 4,
+                                        borderColor: isAllDay ? themeColors.tint : themeColors.borderSubtle,
+                                        backgroundColor: isAllDay ? themeColors.tint : themeColors.background,
+                                        width: 20,
+                                        height: 20,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        { isAllDay ? 
+                                            <Feather name='check' color={themeColors.text} size={16}/> 
+                                        : null }
+                                    </View>
+
+                                </Pressable>
                                 <TextInput
                                     style={{
                                         color: themeColors.text,
