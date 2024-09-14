@@ -9,6 +9,9 @@ import { useColorScheme } from '../components/useColorScheme';
 import Colors from '../constants/Colors';
 import { Feather } from '@expo/vector-icons';
 
+//Databases
+import { sqliteManager } from '../sqlite/sqlite-config';
+
 interface CalendarComponentProps {
     onSelectDates: (dates: string[]) => void;
 }
@@ -18,7 +21,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     const colorScheme = useColorScheme();
     const themeColors = colorScheme === 'dark' ? Colors.dark : Colors.light;
 
-    const [selectedDates, setSelectedDates] = useState<{ [date: string]: { selected: boolean } }>({});
+    const [selectedDates, setSelectedDates] = useState<{ [index: number]: { date: Date, selected: boolean } }>({});
     const [multipleDates, setMultipleDates] = useState(false);
     const [zeroDates, setZeroDates] = useState(true);
     const [eventTitle, setEventTitle] = useState('');
@@ -30,6 +33,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     //Time inputs and state
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
+    const [dates, setDates] = useState<string[]>([]);
     const [invalidTime, setInvalidTime] = useState(false);
     const [invalidEntries, setInvalidEntries] = useState(false);
 
@@ -49,6 +53,13 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
         //Filter selectedDates down to an array of just the dates
         const selectedCount = Object.values(selectedDates).filter(date => date.selected).length;
         console.log(selectedCount);
+
+        //Get the dates that are selected and write to dates array
+        const newDates = Object.values(selectedDates)
+            .filter(date => date.selected)
+            .map(date => date.date.toISOString().split('T')[0]);
+        setDates(newDates);
+
         if (selectedCount >= 0) {
             if (selectedCount === 0) {
                 setZeroDates(true);
@@ -68,22 +79,24 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
 
         //Get today's date in YYYY-MM-DD format
         const todayDateString = today.toISOString().split('T')[0];
-    
+
         if (day.dateString >= todayDateString) {
             const newSelectedDates = { ...selectedDates };
-            if (newSelectedDates[day.dateString]) {
-                delete newSelectedDates[day.dateString];
+            const selectedDate = new Date(day.dateString);
+            const index = selectedDate.getTime(); //Use timestamp as the index
+
+            if (newSelectedDates[index]) {
+                delete newSelectedDates[index];
             } else {
-                newSelectedDates[day.dateString] = { selected: true };
+                newSelectedDates[index] = { date: selectedDate, selected: true };
             }
+
             setSelectedDates(newSelectedDates);
-            onSelectDates(Object.keys(newSelectedDates));
-            return;
+            onSelectDates(Object.values(newSelectedDates).map(date => date.date.toISOString().split('T')[0]));
         } else {
             // Check if the selected date is in the past
             console.log("Cannot select past dates.");
             Alert.alert('Error', 'Cannot select past dates.');
-            return;
         }
     };
 
@@ -185,65 +198,104 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
     };
 
     const handleCreateEvent = async () => {
+        //Single day implementation
         if (!multipleDates) {
-            
-        }
+            //Extract event details from state variables
+            const title = eventTitle.trim();
+            const description = eventDescription.trim();
+            const start = startTime.trim();
+            const end = endTime.trim();
+            const allDay = isAllDay;
+            const selectedDate = dates[0];
         
-        //Extract event details from state variables
-        const title = eventTitle.trim();
-        const description = eventDescription.trim();
-        const start = startTime.trim();
-        const end = endTime.trim();
-        const allDay = isAllDay;
-        const selectedDatesArray = Object.keys(selectedDates).filter(date => selectedDates[date].selected);
-    
-        //This is already accounted for, but just incase!
-        if (title === '' || description === '' || start.length < 5 || end.length < 5 || invalidTime) {
-            alert('Please fill in all required fields with valid data.');
-            return;
+            //This is already accounted for, but just incase!
+            if (title === '' || description === '' || start.length < 5 || end.length < 5 || invalidTime) {
+                alert('Please fill in all required fields with valid data.');
+                return;
+            }
+
+            //Create event object
+            const newEvent = {
+                title,
+                description,
+                startTime: start,
+                endTime: end,
+                isAllDay: allDay,
+                
+            };
+
+            // Convert start and end times to Date objects
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+
+            // Validate date values
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                alert('Invalid date values. Please check the start and end times.');
+                return;
+            }
+
+            try {
+                //Get calendar permissions
+                const { status } = await ExpoCalendar.requestCalendarPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Calendar permissions are required to save events.');
+                    return;
+                }
+
+                //Get default calendar
+                const calendars = await ExpoCalendar.getCalendarsAsync(ExpoCalendar.EntityTypes.EVENT);
+                const defaultCalendar = calendars.find(calendar => calendar.source.name === 'Default');
+                const calendarId = defaultCalendar ? defaultCalendar.id : calendars[0].id;
+
+                //Save event to the calendar
+                await ExpoCalendar.createEventAsync(calendarId, {
+                    title: newEvent.title,
+                    notes: newEvent.description,
+                    startDate: new Date(newEvent.startTime),
+                    endDate: new Date(newEvent.endTime),
+                    allDay: newEvent.isAllDay,
+                    timeZone: 'GMT', //Adjust the time zone as needed
+                });
+
+                //Clear input fields after saving
+                setEventTitle('');
+                setEventDescription('');
+                setStartTime('');
+                setEndTime('');
+                setIsAllDay(true);
+                setSelectedDates({});
+                alert('Event created successfully!');
+
+                //Save event to local storage
+                saveSingleDayEvent(newEvent);
+            } catch (error) {
+                console.error('Error creating event:', error);
+                alert('Failed to create event. Please try again.');
+            }
         }
     
-        //Create event object
-        const newEvent = {
-            title,
-            description,
-            startTime: start,
-            endTime: end,
-            isAllDay: allDay,
-            dates: selectedDatesArray,
-        };
-    
-        try {
-            //Save event (replace with your actual save logic)
-            await saveEvent(newEvent);
-    
-            //Clear input fields after saving
-            setEventTitle('');
-            setEventDescription('');
-            setStartTime('');
-            setEndTime('');
-            setIsAllDay(true);
-            setSelectedDates({});
-            alert('Event created successfully!');
-        } catch (error) {
-            console.error('Error creating event:', error);
-            alert('Failed to create event. Please try again.');
+        //Multiday implementation
+        if (multipleDates) {
+            //Handle multi-day events
         }
-    
-        //Placeholder for future implementation of multi-day events
-        //if (multipleDates) {
-        //    // Handle multi-day events
-        //}
     };
     
     //Placeholder function for saving the event (replace with your actual save logic)
-    const saveEvent = async (event: { title: string; description: string; startTime: string; endTime: string; isAllDay: boolean; dates: string[]; }) => {
-        //Implement your save logic here (e.g., API call, local storage)
+    const saveSingleDayEvent = async (event: { title: string; description: string; startTime: string; endTime: string; isAllDay: boolean; }) => {
         console.log('Saving event:', event);
+
+        sqliteManager.insertSingleDayEvent(event);
     };
 
+    //Prepare markedDates object for the calendar
+    const markedDates = Object.values(selectedDates).reduce((acc, { date, selected }) => {
+        const dateString = date.toISOString().split('T')[0];
+        acc[dateString] = { selected };
+        return acc;
+    }, {} as { [key: string]: { selected: boolean } });
+
     const calendarProps: CalendarProps = {
-        markedDates: selectedDates,
+        markedDates: markedDates,
         onDayPress: handleDayPress,
         markingType: 'multi-dot',
     };
@@ -253,7 +305,7 @@ const CalendarComponent: React.FC<CalendarComponentProps> = ({ onSelectDates }) 
             backgroundColor: themeColors.background,
             }}>
             {/* RENDER CALENDAR */}
-            <Calendar {...calendarProps} 
+            <Calendar {...calendarProps}
                 theme={{
                     backgroundColor: themeColors.background,
                     calendarBackground: themeColors.background,

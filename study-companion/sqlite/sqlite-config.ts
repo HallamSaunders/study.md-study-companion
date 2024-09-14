@@ -153,6 +153,37 @@ class SQLiteManager {
         //return `${day}/${month}`;
         return day;
     }
+
+    //Save a singel day event to the database
+    /*public async insertSingleDayEvent(event: {
+        title: string;
+        description: string;
+        startTime: string;
+        endTime: string;
+        isAllDay: boolean;
+        date: string;
+    }) {
+        if (!this.db) return;
+        await this.db.runAsync(
+            `INSERT INTO events (title, description, start_time, end_time, is_all_day, date) VALUES (?, ?, ?, ?, ?, ?)`,
+            [event.title, event.description, event.startTime, event.endTime, event.isAllDay, event.date]
+        );
+    }*/
+
+    //Save a singel day event to the database
+    public async insertSingleDayEvent(event: {
+        title: string;
+        description: string;
+        startTime: string;
+        endTime: string;
+        isAllDay: boolean;
+    }) {
+        if (!this.db) return;
+        await this.db.runAsync(
+            `INSERT INTO events (title, description, start_time, end_time, is_all_day, date) VALUES (?, ?, ?, ?, ?)`,
+            [event.title, event.description, event.startTime, event.endTime, event.isAllDay]
+        );
+    }
 }
 
 //Export the singleton instance
