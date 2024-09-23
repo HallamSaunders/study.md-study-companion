@@ -26,6 +26,7 @@ import Timeline from './app/screens/Timeline';
 import AnonymousProfile from './app/(tabs)/AnonymousProfile';
 import NotesFileNavigator from './app/screens/NotesFileNavigator';
 import Skills from './app/(tabs)/Skills';
+import DailyTasks from './app/(tabs)/DailyTasks';
 
 //Color schemes
 import { useColorScheme } from './components/useColorScheme';
@@ -95,7 +96,7 @@ function InsideTabLayout({ navigation }: RouterProps) {
 
   return (
     <Tab.Navigator initialRouteName="Timer" screenOptions={{ tabBarShowLabel: false }}>
-      <Tab.Screen name="Calendar" component={CalendarScreen} options={{ 
+      {/*<Tab.Screen name="Calendar" component={CalendarScreen} options={{ 
         title: "Calendar",
         headerShown: false,
         tabBarIcon: ({ focused }) => {
@@ -105,7 +106,7 @@ function InsideTabLayout({ navigation }: RouterProps) {
             size={iconSize}  
           />
         }
-      }}/>
+      }}/>*/}
       {/*<Tab.Screen name="Notes" component={NotesScreen} options={{ 
         title: "Your Notes",
         headerShown: true,
@@ -129,6 +130,17 @@ function InsideTabLayout({ navigation }: RouterProps) {
           </Pressable>
         }
       }}/>*/}
+      <Tab.Screen name="Daily" component={DailyTasks} options={{ 
+        title: "Daily",
+        headerShown: false,
+        tabBarIcon: ({ focused }) => {
+          return <Feather
+            name="list"
+            color={focused ? themeColors.tabIconSelected : themeColors.tabIconDefault}
+            size={iconSize}  
+          />
+        }
+      }}/>
       <Tab.Screen name="Skills" component={Skills} options={{ 
         title: "Skills",
         headerShown: false,
